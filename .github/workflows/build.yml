@@ -1,0 +1,41 @@
+name: build
+
+# Build the web app on every push / PR and upload the result as a downloadable
+# artifact (Actions run → Artifacts → trackbox-spa).
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # flespi-io-js is a public GitHub git dependency; force anonymous HTTPS in case
+      # npm resolves it to ssh (the runner has no SSH key for git clones).
+      - name: Use HTTPS for GitHub git dependencies
+        shell: bash
+        run: git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build SPA
+        run: npm run build
+
+      - name: Upload SPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: trackbox-spa
+          path: dist/spa
+          if-no-files-found: error

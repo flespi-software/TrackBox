@@ -1,0 +1,32 @@
+# Reproducible Linux build environment for the TrackBox Tauri desktop app.
+# Ubuntu 24.04 LTS (glibc 2.39) is the compatibility floor: the produced
+# AppImage/deb runs on glibc >= 2.39 (Ubuntu 24.04+, Debian 13+, current Kali,
+# Fedora 39+). We use 24.04 rather than 22.04 because its newer bundled
+# WebKitGTK works with modern Mesa/GPU drivers — 22.04's webkit aborts with
+# "EGL_BAD_PARAMETER" on recent systems. Trade-off: won't run on pre-2.39 distros
+# (e.g. Ubuntu 22.04); for those, build a deb instead (uses the system webkit).
+#
+# Build the image:   docker build -t trackbox-builder -f Dockerfile.build .
+# Use it:            see scripts/build-appimage.sh
+FROM ubuntu:24.04
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Tauri v2 system dependencies (official list) + libfuse2 for AppImage tooling.
+RUN apt-get update && apt-get install -y \
+      build-essential curl wget file pkg-config \
+      libwebkit2gtk-4.1-dev \
+      libxdo-dev libssl-dev \
+      libayatana-appindicator3-dev \
+      librsvg2-dev libfuse2 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Node.js 22.x (Quasar's @quasar/app-vite requires Node >= 22.22.0)
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Rust (stable toolchain)
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+WORKDIR /app

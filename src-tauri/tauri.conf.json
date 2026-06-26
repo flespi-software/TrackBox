@@ -1,0 +1,56 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "TrackBox",
+  "version": "1.0.0",
+  "identifier": "io.flespi.trackbox",
+  "build": {
+    "frontendDist": "../dist/spa",
+    "devUrl": "http://localhost:8190",
+    "beforeDevCommand": "node scripts/sync-app-name.mjs && node scripts/gen-licenses.mjs && quasar dev",
+    "beforeBuildCommand": "node scripts/sync-app-name.mjs && node scripts/gen-licenses.mjs && quasar build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "TrackBox",
+        "width": 1200,
+        "height": 780,
+        "minWidth": 640,
+        "minHeight": 480,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": false,
+        "transparent": true,
+        "shadow": true
+      }
+    ],
+    "macOSPrivateApi": true,
+    "security": {
+      "csp": null
+    }
+  },
+  "plugins": {
+    "updater": {
+      "//": "Disabled until a repo exists. To enable: set UPDATER_ENABLED=true in src/updater.js, put your latest.json URL below, run `tauri signer generate`, paste the public key into pubkey, and set bundle.createUpdaterArtifacts=true.",
+      "endpoints": [
+        "https://github.com/OWNER/REPO/releases/latest/download/latest.json"
+      ],
+      "pubkey": ""
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "createUpdaterArtifacts": false,
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "android": {
+      "debugApplicationIdSuffix": ".debug"
+    }
+  }
+}
