@@ -1,0 +1,1 @@
+import{i as e}from"./core-Cr70ii3D.js";async function t(t,n){await e(`plugin:shell|open`,{path:t,with:n})}export{t as open};
