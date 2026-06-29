@@ -10,6 +10,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # attach the web build to the release on tags
     steps:
       - uses: actions/checkout@v4
 
@@ -39,3 +41,14 @@ jobs:
           name: trackbox-spa
           path: dist/spa
           if-no-files-found: error
+
+      # On a tag push, zip the web build and attach it to that tag's GitHub Release.
+      - name: Zip web build
+        if: startsWith(github.ref, 'refs/tags/')
+        run: cd dist && zip -r ../trackbox-spa.zip spa
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: trackbox-spa.zip
