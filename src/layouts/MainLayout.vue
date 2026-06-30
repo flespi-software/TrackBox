@@ -128,6 +128,15 @@
               no-caps
               @click="licensesDialog = true"
             />
+            <q-btn
+              v-if="isTauri"
+              outline
+              color="primary"
+              icon="mdi-update"
+              label="Check for updates"
+              no-caps
+              @click="checkUpdates"
+            />
           </div>
         </q-card-section>
         <q-card-section class="q-pt-none">
@@ -168,7 +177,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed, watch, onMounted } from 'vue'
+import { defineComponent, ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useQuasar, LocalStorage } from 'quasar'
 import { useRoute } from 'vue-router'
 import LoginButton from 'src/components/widgets/LoginButton.vue'
@@ -294,11 +303,31 @@ export default defineComponent({
       })
     }
 
+    let updateTimer = null
+    let unlistenCheckUpdate = null
+    const checkUpdates = () => checkForUpdates({ notifyNoUpdate: true })
+
+    onBeforeUnmount(() => {
+      if (updateTimer) clearInterval(updateTimer)
+      if (unlistenCheckUpdate) unlistenCheckUpdate()
+    })
+
     onMounted(async () => {
       checkForUpdates()
       // First-run interactive tour (once; re-runnable from Settings → Show tour).
       if (!hidePanels.value) maybeStartFirstRunTour($q)
       if (!isTauri) return
+      // Re-check for a new version every 2 hours while the app stays open.
+      updateTimer = setInterval(() => checkForUpdates(), 2 * 60 * 60 * 1000)
+      // The tray "Check for updates" item asks the frontend to run a visible check.
+      try {
+        const { listen } = await import('@tauri-apps/api/event')
+        unlistenCheckUpdate = await listen('tray://check-update', () =>
+          checkForUpdates({ notifyNoUpdate: true }),
+        )
+      } catch (e) {
+        if (process.env.DEV) console.log('[updater] tray listen', e)
+      }
       // Keep the tray tooltip (and macOS title) showing the running count.
       try {
         const { TrayIcon } = await import('@tauri-apps/api/tray')
@@ -354,6 +383,7 @@ export default defineComponent({
       startTour,
       hidePanels,
       isTauri,
+      checkUpdates,
       maximized,
       vaultDialog,
       vaultLocked,

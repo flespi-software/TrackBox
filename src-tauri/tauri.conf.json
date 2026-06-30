@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "TrackBox",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "identifier": "io.flespi.trackbox",
   "build": {
     "frontendDist": "../dist/spa",

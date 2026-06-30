@@ -78,6 +78,7 @@ pub fn run() {
       {
         use tauri::menu::{Menu, MenuItem};
         use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
+        use tauri::Emitter;
 
         app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
 
@@ -86,8 +87,10 @@ pub fn run() {
         // name comes from tauri.conf.json (productName) so a rename is one place.
         let app_name = app.config().product_name.clone().unwrap_or_else(|| "App".into());
         let show_i = MenuItem::with_id(app, "show", format!("Show {app_name}"), true, None::<&str>)?;
+        let updates_i =
+          MenuItem::with_id(app, "check-update", "Check for updates", true, None::<&str>)?;
         let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-        let menu = Menu::with_items(app, &[&show_i, &quit_i])?;
+        let menu = Menu::with_items(app, &[&show_i, &updates_i, &quit_i])?;
         TrayIconBuilder::with_id("main-tray")
           .icon(app.default_window_icon().unwrap().clone())
           .tooltip(&app_name)
@@ -95,6 +98,12 @@ pub fn run() {
           .show_menu_on_left_click(false)
           .on_menu_event(|app, event| match event.id.as_ref() {
             "show" => show_main(app),
+            // Show the window (so the update dialog is visible) and let the frontend
+            // run the check.
+            "check-update" => {
+              show_main(app);
+              let _ = app.emit("tray://check-update", ());
+            }
             // Tray Quit exits immediately; the in-app Quit asks for confirmation.
             "quit" => app.exit(0),
             _ => {}
