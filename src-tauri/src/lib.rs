@@ -8,22 +8,6 @@ fn show_main(app: &tauri::AppHandle) {
   }
 }
 
-#[cfg(desktop)]
-fn toggle_main(app: &tauri::AppHandle) {
-  use tauri::Manager;
-  if let Some(w) = app.get_webview_window("main") {
-    let visible = w.is_visible().unwrap_or(false);
-    let minimized = w.is_minimized().unwrap_or(false);
-    if visible && !minimized {
-      let _ = w.hide();
-    } else {
-      let _ = w.show();
-      let _ = w.unminimize();
-      let _ = w.set_focus();
-    }
-  }
-}
-
 /// Load the per-install Stronghold salt, generating a random 16-byte one on first
 /// run. A salt is not a secret (stored in plaintext next to the vault); using a
 /// unique random salt per install instead of a hardcoded constant means one
@@ -116,14 +100,14 @@ pub fn run() {
             _ => {}
           })
           .on_tray_icon_event(|tray, event| {
-            // Left-click toggles the window; right-click opens the menu.
+            // Left-click opens (shows/raises) the window; right-click opens the menu.
             if let TrayIconEvent::Click {
               button: MouseButton::Left,
               button_state: MouseButtonState::Up,
               ..
             } = event
             {
-              toggle_main(tray.app_handle());
+              show_main(tray.app_handle());
             }
           })
           .build(app)?;

@@ -27,6 +27,7 @@
         <!-- Custom window controls (desktop / Tauri only) -->
         <template v-if="isTauri">
           <q-btn
+            id="tour-quit"
             flat
             dense
             icon="mdi-power"

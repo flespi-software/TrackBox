@@ -14,22 +14,20 @@
         <q-input v-model="form.name" label="Name" dense outlined class="q-mb-md" />
 
         <!-- Route -->
-        <div class="row items-center q-mb-xs">
-          <div class="text-subtitle2">Route</div>
-          <q-space />
-          <q-btn-toggle
-            id="tour-route-mode"
-            v-model="routeMode"
-            dense
-            no-caps
-            unelevated
-            toggle-color="primary"
-            :options="[
-              { label: 'Upload file', value: 'file', icon: 'mdi-file-upload' },
-              { label: 'Build by roads', value: 'build', icon: 'mdi-routes' },
-            ]"
-          />
-        </div>
+        <div class="text-subtitle2 q-mb-xs">Route</div>
+        <q-btn-toggle
+          id="tour-route-mode"
+          v-model="routeMode"
+          spread
+          no-caps
+          unelevated
+          toggle-color="primary"
+          class="q-mb-sm rb-route-toggle"
+          :options="[
+            { label: 'Build by roads', value: 'build', icon: 'mdi-routes' },
+            { label: 'Upload file', value: 'file', icon: 'mdi-file-upload' },
+          ]"
+        />
 
         <template v-if="routeMode === 'file'">
           <div class="row q-col-gutter-sm items-center">
@@ -573,7 +571,7 @@ export default defineComponent({
       validated: false, // set on a Save attempt → reveals required-field errors
       formatOptions: FORMATS,
       // road-route builder
-      routeMode: 'file', // file | build
+      routeMode: 'build', // build | file
       routerProvider: 'osrm',
       routerProfile: 'routed-car',
       waypoints: [],
@@ -729,7 +727,7 @@ export default defineComponent({
     init() {
       // routing builder defaults / remembered prefs
       this.validated = false
-      this.routeMode = 'file'
+      this.routeMode = 'build' // default to building by roads
       this.waypoints = []
       this.building = false
       this.buildError = ''
@@ -773,6 +771,8 @@ export default defineComponent({
             lon: w.lon,
             sec: Math.max(0, Number(w.sec) || 0),
           }))
+        } else {
+          this.routeMode = 'file' // editing a file-uploaded route
         }
       } else {
         this.form = blankForm()
@@ -1151,6 +1151,12 @@ export default defineComponent({
 }
 .rb-param-value > .q-toggle {
   width: auto;
+}
+/* Route mode toggle: neutral track (theme-agnostic), active segment filled primary,
+   inactive segments use the normal theme text colour (readable in light and dark). */
+.rb-route-toggle {
+  border-radius: 6px;
+  background: rgba(128, 128, 128, 0.14);
 }
 /* "Off" state: a diagonal slash across the traffic-light avatar (no crossed icon in MDI). */
 .rb-tl-off {

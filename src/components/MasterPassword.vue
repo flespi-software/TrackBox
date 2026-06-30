@@ -8,13 +8,16 @@
       <q-card-section>
         <div class="text-caption text-grey-7 q-mb-sm">
           <template v-if="isNew">
-            Your flespi token and map API keys are kept in an encrypted vault.
-            <b>Choose a master password</b> to protect it — you'll enter it to
-            unlock the vault next time. There's no recovery if you forget it.
+            Your flespi token and map API keys are saved on this device in an
+            <b>encrypted vault</b> so you don't re-enter them every time.
+            <b>Choose a master password</b> to protect them — you'll need to enter it
+            <b>each time you open the app</b> to unlock the vault.
+            There's no recovery if you forget it. Prefer not to save secrets? Just
+            <b>Skip</b>.
           </template>
           <template v-else>
-            Enter your <b>master password</b> to unlock the encrypted vault
-            (flespi token and map API keys).
+            Enter your <b>master password</b> to unlock the encrypted vault with your
+            saved flespi token and map API keys. You'll be asked for it on every launch.
           </template>
         </div>
         <q-input
@@ -26,6 +29,18 @@
           autofocus
           :error="!!error"
           :error-message="error"
+          @keyup.enter="unlock"
+        />
+        <q-input
+          v-if="isNew"
+          v-model="confirm"
+          type="password"
+          label="Confirm password"
+          dense
+          outlined
+          class="q-mt-sm"
+          :error="mismatch"
+          error-message="Passwords don't match"
           @keyup.enter="unlock"
         />
       </q-card-section>
@@ -47,7 +62,7 @@
             color="primary"
             :label="isNew ? 'Set password' : 'Unlock'"
             :loading="busy"
-            :disable="!password"
+            :disable="!password || (isNew && password !== confirm)"
             @click="unlock"
           />
         </div>
@@ -67,7 +82,12 @@ export default defineComponent({
   },
   emits: ['update:modelValue', 'unlocked'],
   data() {
-    return { password: '', error: '', busy: false, isNew: false }
+    return { password: '', confirm: '', error: '', busy: false, isNew: false }
+  },
+  computed: {
+    mismatch() {
+      return this.isNew && this.confirm.length > 0 && this.password !== this.confirm
+    },
   },
   watch: {
     // On open, detect whether this is first-time setup or unlocking an existing
@@ -82,6 +102,7 @@ export default defineComponent({
   methods: {
     async detectNew() {
       this.password = ''
+      this.confirm = ''
       this.error = ''
       try {
         this.isNew = !(await secureStore.vaultExists())
@@ -91,6 +112,10 @@ export default defineComponent({
     },
     async unlock() {
       if (!this.password || this.busy) return
+      if (this.isNew && this.password !== this.confirm) {
+        this.error = "Passwords don't match"
+        return
+      }
       this.busy = true
       this.error = ''
       try {
@@ -101,6 +126,7 @@ export default defineComponent({
           new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 30000)),
         ])
         this.password = ''
+        this.confirm = ''
         this.$emit('unlocked')
         this.$emit('update:modelValue', false)
       } catch (e) {

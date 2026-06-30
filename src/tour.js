@@ -75,6 +75,15 @@ function mainSteps() {
       element: '#tour-theme',
       popover: { title: 'Theme', description: 'Switch between light and dark.' },
     },
+    {
+      // Desktop only — auto-skipped on the web build (the element won't exist).
+      element: '#tour-quit',
+      popover: {
+        title: 'Quit vs. close',
+        description:
+          'Closing the window (✕) hides the app to the system tray — your simulators keep running in the background. Use this Quit button to exit the app completely.',
+      },
+    },
   ]
 }
 

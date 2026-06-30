@@ -13,6 +13,37 @@
     >
       <q-tooltip>Fit all routes</q-tooltip>
     </q-btn>
+    <q-btn
+      class="layers-btn"
+      round
+      dense
+      color="white"
+      text-color="primary"
+      icon="mdi-layers"
+      size="sm"
+    >
+      <q-tooltip>Basemap</q-tooltip>
+      <q-menu anchor="bottom right" self="top right">
+        <q-list dense style="min-width: 170px">
+          <q-item
+            v-for="s in mapStyles"
+            :key="s.value"
+            clickable
+            v-close-popup
+            @click="settings.setMapStyle(s.value)"
+          >
+            <q-item-section side>
+              <q-icon
+                :name="settings.mapStyle === s.value ? 'mdi-check' : 'mdi-checkbox-blank-circle-outline'"
+                :color="settings.mapStyle === s.value ? 'primary' : 'grey-5'"
+                size="18px"
+              />
+            </q-item-section>
+            <q-item-section>{{ s.label }}</q-item-section>
+          </q-item>
+        </q-list>
+      </q-menu>
+    </q-btn>
   </div>
 </template>
 
@@ -20,7 +51,8 @@
 import { defineComponent } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { basemap } from '../sim/mapTiles'
+import { basemap, MAP_STYLES } from '../sim/mapTiles'
+import { useSettingsStore } from '../stores/settings'
 
 function arrowIcon(color, dir) {
   return L.divIcon({
@@ -56,6 +88,11 @@ export default defineComponent({
   props: {
     simulators: { type: Array, default: () => [] },
   },
+  setup() {
+    const settings = useSettingsStore()
+    settings.load() // ensure the persisted basemap style is available
+    return { settings, mapStyles: MAP_STYLES }
+  },
   data() {
     return {
       map: null,
@@ -70,6 +107,10 @@ export default defineComponent({
     this.map = L.map(this.$refs.mapEl, {
       zoomControl: true,
       attributionControl: true,
+      // Canvas renderer: redraws routes at the new projection on every zoom instead
+      // of relying on the SVG pane's animation transform (which intermittently failed
+      // to reset, leaving the track at the wrong scale). Also faster for big routes.
+      preferCanvas: true,
     }).setView([54.6872, 25.2797], 6)
     // Don't add/remove layers mid zoom-animation — that triggers Leaflet's
     // "_animateZoom on null map" crash. Defer reconcile until the zoom settles.
@@ -118,6 +159,9 @@ export default defineComponent({
     dark() {
       this.applyTiles()
     },
+    'settings.mapStyle'() {
+      this.applyTiles()
+    },
   },
   computed: {
     dark() {
@@ -146,13 +190,16 @@ export default defineComponent({
       if (this._resizeTimer) clearTimeout(this._resizeTimer)
       this._resizeTimer = setTimeout(() => {
         this._resizeTimer = null
-        if (this.map) this.map.invalidateSize({ animate: false })
+        if (!this.map) return
+        // Resizing mid-zoom can desync vector layers — wait for the zoom to settle.
+        if (this.zooming) return this.onResize()
+        this.map.invalidateSize({ animate: false })
       }, 160)
     },
     applyTiles() {
       if (!this.map) return
       if (this.tileLayer) this.tileLayer.remove()
-      const b = basemap(this.dark)
+      const b = basemap(this.settings.mapStyle, this.dark)
       this.tileLayer = L.tileLayer(b.url, b.options).addTo(this.map)
       this.tileLayer.bringToBack()
     },
@@ -279,6 +326,13 @@ export default defineComponent({
 .fit-btn {
   position: absolute;
   top: 10px;
+  right: 10px;
+  z-index: 500;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+.layers-btn {
+  position: absolute;
+  top: 50px;
   right: 10px;
   z-index: 500;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);

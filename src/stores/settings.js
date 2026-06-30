@@ -20,6 +20,7 @@ export const useSettingsStore = defineStore('settings', {
   state: () => ({
     routerProvider: 'osrm',
     routerProfile: '',
+    mapStyle: 'map', // basemap tiles: 'map' (theme) | 'osm' | 'satellite'
     apiKeys: {}, // loaded from secureStore
     loaded: false,
   }),
@@ -34,6 +35,7 @@ export const useSettingsStore = defineStore('settings', {
       const p = LocalStorage.getItem(PREFS_KEY) || {}
       this.routerProvider = p.provider || 'osrm'
       this.routerProfile = p.profile || ''
+      this.mapStyle = p.mapStyle || 'map'
       this.loaded = true
       this.loadKeys()
     },
@@ -47,14 +49,23 @@ export const useSettingsStore = defineStore('settings', {
         const existing = await secureStore.get(KEYS_SECRET)
         if (!existing) await secureStore.set(KEYS_SECRET, JSON.stringify(legacyKeys))
         // strip secrets out of plaintext storage
-        LocalStorage.set(PREFS_KEY, { provider: this.routerProvider, profile: this.routerProfile })
+        this.persistPrefs()
       }
       const raw = await secureStore.get(KEYS_SECRET)
       this.apiKeys = safeParse(raw)
     },
 
     persistPrefs() {
-      LocalStorage.set(PREFS_KEY, { provider: this.routerProvider, profile: this.routerProfile })
+      LocalStorage.set(PREFS_KEY, {
+        provider: this.routerProvider,
+        profile: this.routerProfile,
+        mapStyle: this.mapStyle,
+      })
+    },
+
+    setMapStyle(style) {
+      this.mapStyle = style
+      this.persistPrefs()
     },
 
     async setKey(provider, key) {

@@ -1,11 +1,17 @@
 <template>
   <div class="rb-wrap" :class="{ 'rb-fullscreen': fullscreen }">
     <div ref="mapEl" class="rb-map" />
+    <!-- Empty-state call to action: build mode with no points placed yet. -->
+    <div v-if="interactive && !waypoints.length" class="rb-empty-hint">
+      <q-icon name="mdi-map-marker-plus-outline" size="26px" />
+      <span>Click the map to drop waypoints</span>
+    </div>
+    <div v-if="zoomHint && !fullscreen" class="rb-zoom-hint">Use Ctrl + scroll to zoom</div>
     <div class="rb-hint">
       {{
         interactive
-          ? 'Click to add waypoints · drag to adjust · +/− or ⛶ to zoom'
-          : 'Route preview · +/− or ⛶ to zoom'
+          ? 'Click to add waypoints · drag to adjust · Ctrl+scroll or +/− to zoom'
+          : 'Route preview · Ctrl+scroll or +/− to zoom'
       }}
     </div>
     <q-btn
@@ -40,6 +46,7 @@ import { defineComponent } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { basemap } from '../sim/mapTiles'
+import { useSettingsStore } from '../stores/settings'
 
 function dotIcon(color, n) {
   return L.divIcon({
@@ -61,8 +68,13 @@ export default defineComponent({
     interactive: { type: Boolean, default: true },
   },
   emits: ['add', 'move', 'update:loop'],
+  setup() {
+    const settings = useSettingsStore()
+    settings.load()
+    return { settings }
+  },
   data() {
-    return { map: null, markers: [], routeLine: null, fullscreen: false }
+    return { map: null, markers: [], routeLine: null, tileLayer: null, fullscreen: false, zoomHint: false }
   },
   mounted() {
     // Wheel-zoom off while embedded so scrolling the dialog doesn't zoom the map
@@ -71,21 +83,42 @@ export default defineComponent({
       [54.6872, 25.2797],
       12,
     )
-    const b = basemap(this.$q.dark.isActive)
-    L.tileLayer(b.url, b.options).addTo(this.map)
+    this.applyTiles()
     this.map.on('click', (e) => {
       if (this.interactive) this.$emit('add', { lat: e.latlng.lat, lon: e.latlng.lng })
     })
     // Dialog open animation: ensure the map measures its real size.
     this.$nextTick(() => this.map.invalidateSize())
     setTimeout(() => this.map && this.map.invalidateSize(), 350)
+    // Allow one auto-fit if we open with an existing route (editing); never auto-fit
+    // on waypoints added later while building.
+    this._allowInitialFit = this.routePoints.length > 1
     this.renderWaypoints()
+    this.renderRoute()
+    // Ctrl/⌘ + wheel zooms toward the cursor while embedded; plain scroll is left
+    // to the dialog (and shows a hint). Fullscreen keeps native wheel zoom.
+    this._onWheel = (e) => {
+      if (this.fullscreen) return
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault() // also stops the browser's ctrl+wheel page zoom
+        const pt = this.map.mouseEventToContainerPoint(e)
+        const delta = e.deltaY < 0 ? 1 : -1
+        this.map.setZoomAround(this.map.containerPointToLatLng(pt), this.map.getZoom() + delta)
+      } else {
+        this.zoomHint = true
+        clearTimeout(this._hintTimer)
+        this._hintTimer = setTimeout(() => (this.zoomHint = false), 1200)
+      }
+    }
+    this.$refs.mapEl.addEventListener('wheel', this._onWheel, { passive: false })
     this._onKey = (e) => {
       if (e.key === 'Escape' && this.fullscreen) this.toggleFullscreen()
     }
     window.addEventListener('keydown', this._onKey)
   },
   beforeUnmount() {
+    clearTimeout(this._hintTimer)
+    if (this._onWheel && this.$refs.mapEl) this.$refs.mapEl.removeEventListener('wheel', this._onWheel)
     window.removeEventListener('keydown', this._onKey)
     if (this.map) {
       try {
@@ -98,6 +131,9 @@ export default defineComponent({
     }
   },
   watch: {
+    'settings.mapStyle'() {
+      this.applyTiles()
+    },
     waypoints: {
       handler() {
         this.renderWaypoints()
@@ -112,6 +148,13 @@ export default defineComponent({
     },
   },
   methods: {
+    applyTiles() {
+      if (!this.map) return
+      if (this.tileLayer) this.tileLayer.remove()
+      const b = basemap(this.settings.mapStyle, this.$q.dark.isActive)
+      this.tileLayer = L.tileLayer(b.url, b.options).addTo(this.map)
+      this.tileLayer.bringToBack()
+    },
     toggleFullscreen() {
       this.fullscreen = !this.fullscreen
       // Wheel zoom only makes sense fullscreen (no dialog to scroll behind it).
@@ -158,9 +201,14 @@ export default defineComponent({
           this.routePoints.map((p) => [p.lat, p.lon]),
           { color: this.color, weight: 4, opacity: 0.8 },
         ).addTo(this.map)
-        // Non-animated fit: the dialog can be closed right after building, and
-        // tearing down the map mid zoom-animation crashes Leaflet.
-        this.map.fitBounds(this.routeLine.getBounds(), { padding: [25, 25], animate: false })
+        // Fit only for the read-only preview, or once when opening an existing route —
+        // not on every waypoint added while building (that zooms the map out from
+        // under the user). Non-animated: the dialog can close right after building,
+        // and tearing down the map mid zoom-animation crashes Leaflet.
+        if (!this.interactive || this._allowInitialFit) {
+          this.map.fitBounds(this.routeLine.getBounds(), { padding: [25, 25], animate: false })
+          this._allowInitialFit = false
+        }
       }
     },
   },
@@ -212,6 +260,39 @@ export default defineComponent({
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 4px;
+  pointer-events: none;
+}
+.rb-zoom-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 600;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 6px;
+  pointer-events: none;
+}
+.rb-empty-hint {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 550;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 24px);
+  background: var(--q-primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   pointer-events: none;
 }
 .rb-marker-inner {
