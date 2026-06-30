@@ -6,6 +6,8 @@ simulators at once and watch them move on a live map.
 
 Built on Quasar 2 / Vue 3 / Pinia + `flespi-io-js`.
 
+![TrackBox UI](docs/screenshots/ui.png)
+
 ## What it does
 
 - Load a route from a file (**flespi messages JSON**, **GeoJSON**, **GPX**, or **KML**;
