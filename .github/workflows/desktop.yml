@@ -79,6 +79,9 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
+          # Keep the release a draft until latest.json is attached (manifest job),
+          # so the updater never sees a "latest" release without its manifest.
+          draft: true
           files: src-tauri/target/release/bundle/appimage/*.AppImage
 
   windows:
@@ -127,6 +130,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
+          draft: true # published by the manifest job once latest.json is attached
           files: |
             src-tauri/target/release/bundle/nsis/*-setup.exe
             src-tauri/target/release/bundle/msi/*.msi
@@ -157,7 +161,11 @@ jobs:
             console.log(JSON.stringify(out,null,2));
           "
 
-      - name: Attach latest.json to release
+      - name: Attach latest.json and publish the release
         uses: softprops/action-gh-release@v2
         with:
+          # Everything (binaries + manifest) is attached now — publish so the
+          # release becomes "latest" with latest.json already in place.
+          draft: false
+          make_latest: 'true'
           files: latest.json

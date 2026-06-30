@@ -5,7 +5,15 @@
         <q-btn id="tour-menu" flat dense round icon="mdi-menu" aria-label="Menu" @click="toggleLeftDrawer" />
         <q-toolbar-title class="titlebar-title" data-tauri-drag-region>
           <img src="TrackBox.png" class="titlebar-logo" alt="" data-tauri-drag-region />
-          {{ product }} <sup>{{ version }}</sup>
+          {{ product }}
+          <sup
+            class="titlebar-ver"
+            :class="{ 'cursor-pointer': isTauri }"
+            @click="isTauri && checkUpdates()"
+          >
+            {{ version }}
+            <q-tooltip v-if="isTauri">Check for updates</q-tooltip>
+          </sup>
         </q-toolbar-title>
         <q-space v-if="isTauri" />
 
@@ -428,6 +436,11 @@ export default defineComponent({
   pointer-events: none;
   font-size: 14px;
   font-weight: 500;
+}
+/* The version is clickable (check for updates) even though the title bar above
+   ignores pointer events for window dragging. */
+.titlebar-ver {
+  pointer-events: auto;
 }
 /* Square, full-height window-control buttons (Windows-style). */
 .titlebar-btn {
