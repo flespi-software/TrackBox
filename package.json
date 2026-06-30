@@ -1,6 +1,6 @@
 {
   "name": "trackbox",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "GPS tracker simulator for flespi — drive virtual devices along routes and feed them into flespi via device REST, HTTP or MQTT channels",
   "productName": "TrackBox",
   "author": "Evgenij Spitsyn <spev@gurtam.team>",

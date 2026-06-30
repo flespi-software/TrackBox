@@ -6,6 +6,7 @@
 // TAURI_SIGNING_PRIVATE_KEY secret and publishes latest.json next to them; the
 // matching public key is in src-tauri/tauri.conf.json → plugins.updater.pubkey.
 
+import { Dialog, Notify, Loading } from 'quasar'
 import { isTauri } from './platform'
 import { logInfo, logError } from './log'
 
@@ -13,7 +14,8 @@ export const UPDATER_ENABLED = true
 
 export async function checkForUpdates({ notifyNoUpdate = false } = {}) {
   if (!isTauri || !UPDATER_ENABLED) return
-  const { Dialog, Notify, Loading } = await import('quasar')
+  // NB: static import — a dynamic `await import('quasar')` tree-shakes these to
+  // undefined in production, which silently broke the "Update available" dialog.
   try {
     logInfo('updater', 'checking for updates…')
     const { check } = await import('@tauri-apps/plugin-updater')
