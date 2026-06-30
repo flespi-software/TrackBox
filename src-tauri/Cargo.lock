@@ -5726,7 +5726,7 @@ dependencies = [
 
 [[package]]
 name = "trackbox"
-version = "1.0.0"
+version = "1.0.2"
 dependencies = [
  "getrandom 0.2.17",
  "log",

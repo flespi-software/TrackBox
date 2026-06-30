@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "TrackBox",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "identifier": "io.flespi.trackbox",
   "build": {
     "frontendDist": "../dist/spa",
@@ -31,17 +31,16 @@
   },
   "plugins": {
     "updater": {
-      "//": "Disabled until a repo exists. To enable: set UPDATER_ENABLED=true in src/updater.js, put your latest.json URL below, run `tauri signer generate`, paste the public key into pubkey, and set bundle.createUpdaterArtifacts=true.",
       "endpoints": [
-        "https://github.com/OWNER/REPO/releases/latest/download/latest.json"
+        "https://github.com/flespi-software/TrackBox/releases/latest/download/latest.json"
       ],
-      "pubkey": ""
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEU1NDRDRDJFNkE0OEIxNzEKUldSeHNVaHFMczFFNVNSZmQ1WE1Fby8ybkJXUlRqVFJ2NE5EOCtQNFZSc21mcG1ka3kzUnZ4ZG4K"
     }
   },
   "bundle": {
     "active": true,
     "targets": "all",
-    "createUpdaterArtifacts": false,
+    "createUpdaterArtifacts": true,
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

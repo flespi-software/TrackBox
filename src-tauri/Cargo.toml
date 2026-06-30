@@ -1,6 +1,6 @@
 [package]
 name = "trackbox"
-version = "1.0.0"
+version = "1.0.2"
 description = "GPS tracker simulator for flespi"
 authors = ["Evgenij Spitsyn <spev@gurtam.team>"]
 license = ""

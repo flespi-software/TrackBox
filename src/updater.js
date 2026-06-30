@@ -1,17 +1,14 @@
 // Desktop auto-update via tauri-plugin-updater (GitHub Releases).
 //
-// DISABLED until you have a repo + release pipeline. To enable:
-//   1. set UPDATER_ENABLED = true below
-//   2. src-tauri/tauri.conf.json → plugins.updater.endpoints = your latest.json URL
-//   3. `npx tauri signer generate` → paste the public key into plugins.updater.pubkey,
-//      keep the private key as a CI secret (TAURI_SIGNING_PRIVATE_KEY)
-//   4. src-tauri/tauri.conf.json → bundle.createUpdaterArtifacts = true
-//   5. publish releases (e.g. via tauri-apps/tauri-action) so latest.json + signed
-//      artifacts land on the GitHub release.
+// On startup the app fetches plugins.updater.endpoints (latest.json on the GitHub
+// release), and if a newer signed build exists, offers to download + install it.
+// The release pipeline (.github/workflows/desktop.yml) signs artifacts with the
+// TAURI_SIGNING_PRIVATE_KEY secret and publishes latest.json next to them; the
+// matching public key is in src-tauri/tauri.conf.json → plugins.updater.pubkey.
 
 import { isTauri } from './platform'
 
-export const UPDATER_ENABLED = false
+export const UPDATER_ENABLED = true
 
 export async function checkForUpdates({ notifyNoUpdate = false } = {}) {
   if (!isTauri || !UPDATER_ENABLED) return
