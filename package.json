@@ -1,6 +1,6 @@
 {
   "name": "trackbox",
-  "version": "1.0.0",
+  "version": "1.0.6",
   "description": "GPS tracker simulator for flespi — drive virtual devices along routes and feed them into flespi via device REST, HTTP or MQTT channels",
   "productName": "TrackBox",
   "author": "Evgenij Spitsyn <spev@gurtam.team>",
@@ -19,7 +19,7 @@
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
-    "deploy": "rm -rf dist && npm run build && rm -rf deploy && mkdir deploy && cp -R dist/spa/* LICENSE package.json deploy && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rgit@git.gurtam.net:flespi/frontend/TrackBox.git && rm -rf deploy",
+    "deploy": "rm -rf dist && npm run build && rm -rf deploy && mkdir deploy && cp -R dist/spa/* LICENSE package.json deploy && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rgit@github.com:flespi-software/TrackBox.git && rm -rf deploy",
     "postinstall": "quasar prepare",
     "gen-licenses": "node scripts/gen-licenses.mjs"
   },
@@ -34,7 +34,7 @@
     "@tauri-apps/plugin-updater": "^2.10.1",
     "axios": "^1.13.1",
     "driver.js": "^1.4.0",
-    "flespi-io-js": "git+ssh://git@git.gurtam.net:flespi/frontend/flespi-io-js.git",
+    "flespi-io-js": "git+https://github.com/flespi-software/flespi-io-js.git#f55112d1a5e5e87796cce48a790d2b1f84cf84ca",
     "leaflet": "^1.9.4",
     "localforage": "^1.10.0",
     "pinia": "^3.0.4",

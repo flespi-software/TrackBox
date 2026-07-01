@@ -1,1 +1,0 @@
-import{i as e}from"./core-Cr70ii3D.js";async function t(t=0){await e(`plugin:process|exit`,{code:t})}export{t as exit};
