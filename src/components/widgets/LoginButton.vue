@@ -167,10 +167,10 @@ export default defineComponent({
   watch: {
     $route(route) {
       if (route.params && route.params.token) {
-        console.log('[watch route]: token')
         this.setToken(this.$route.params.token).then(() => {
+          // replace() so the token URL doesn't stay in browser history.
           this.$nextTick(() => {
-            this.$router.push('/')
+            this.$router.replace('/')
           })
         })
       }
@@ -179,11 +179,11 @@ export default defineComponent({
   created() {
     // first try to login with the token that is passed in URL, if any
     if (this.$route.params && this.$route.params.token) {
-      console.log('[login]: route params token')
       const nextPath = this.$route.params.devices ? '/devices/' + this.$route.params.devices : '/'
       this.setToken(this.$route.params.token).then(() => {
+        // replace() so the token URL doesn't stay in browser history.
         this.$nextTick(() => {
-          this.$router.push(nextPath)
+          this.$router.replace(nextPath)
         })
       })
       return true

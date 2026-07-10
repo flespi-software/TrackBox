@@ -3,6 +3,12 @@
 All notable changes to TrackBox are documented here. This file is bundled into
 the app and shown in Settings → “What’s new”.
 
+## [1.1.1]
+
+### Added
+- Web: log in via a token URL — `/#/token/<flespi-token>` signs in and redirects
+  to the app (the token is removed from browser history).
+
 ## [1.1.0]
 
 ### Added
