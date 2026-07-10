@@ -65,8 +65,9 @@
 
     </div>
 
-    <!-- Footer: settings, then copyright pinned to the very bottom edge -->
+    <!-- Footer: download banner (web only), settings, copyright — pinned to bottom -->
     <div class="drawer-bottom">
+      <DownloadDesktopBanner />
       <q-separator />
       <q-item clickable @click="$emit('open-settings')">
         <q-item-section avatar><q-icon name="mdi-cog-outline" /></q-item-section>
@@ -86,9 +87,11 @@ import { defineComponent } from 'vue'
 import { mapState } from 'pinia'
 import { useAuthStore } from '../stores/auth'
 import { useSimulatorsStore } from '../stores/simulators'
+import DownloadDesktopBanner from './DownloadDesktopBanner.vue'
 
 export default defineComponent({
   name: 'DrawerContent',
+  components: { DownloadDesktopBanner },
   props: {
     vaultLocked: { type: Boolean, default: false },
   },

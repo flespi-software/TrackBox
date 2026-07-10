@@ -41,6 +41,43 @@
             </q-item-section>
             <q-item-section>{{ s.label }}</q-item-section>
           </q-item>
+          <template v-if="isImagery">
+            <q-separator class="q-my-xs" />
+            <q-item clickable @click="settings.setShowLabels(!settings.showLabels)">
+              <q-item-section side>
+                <q-icon
+                  :name="settings.showLabels ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline'"
+                  :color="settings.showLabels ? 'primary' : 'grey-5'"
+                  size="18px"
+                />
+              </q-item-section>
+              <q-item-section>Street labels</q-item-section>
+            </q-item>
+            <q-item
+              v-for="src in labelsSources"
+              v-show="settings.showLabels"
+              :key="src.value"
+              clickable
+              :inset-level="0.4"
+              @click="settings.setLabelsSource(src.value)"
+            >
+              <q-item-section side>
+                <q-icon
+                  :name="settings.labelsSource === src.value ? 'mdi-radiobox-marked' : 'mdi-radiobox-blank'"
+                  :color="settings.labelsSource === src.value ? 'primary' : 'grey-5'"
+                  size="16px"
+                />
+              </q-item-section>
+              <q-item-section class="text-caption">{{ src.label }}</q-item-section>
+            </q-item>
+          </template>
+          <q-separator class="q-my-xs" />
+          <q-item clickable v-close-popup @click="settings.openSettings('mapLayers')">
+            <q-item-section side>
+              <q-icon name="mdi-cog-outline" size="18px" color="grey-6" />
+            </q-item-section>
+            <q-item-section class="text-grey-7">Configure layers…</q-item-section>
+          </q-item>
         </q-list>
       </q-menu>
     </q-btn>
@@ -51,7 +88,15 @@
 import { defineComponent } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { basemap, MAP_STYLES } from '../sim/mapTiles'
+import {
+  basemap,
+  mapStyles as styleOptions,
+  isImagery,
+  LABELS_SOURCES,
+  MAX_LABEL_LAYERS,
+  MAX_ZOOM,
+  BLANK_TILE,
+} from '../sim/mapTiles'
 import { useSettingsStore } from '../stores/settings'
 
 function arrowIcon(color, dir) {
@@ -91,13 +136,14 @@ export default defineComponent({
   setup() {
     const settings = useSettingsStore()
     settings.load() // ensure the persisted basemap style is available
-    return { settings, mapStyles: MAP_STYLES }
+    return { settings }
   },
   data() {
     return {
       map: null,
       layers: {}, // id -> { polyline, marker }
       tileLayer: null,
+      labelsLayers: [], // transparent street/place overlays (satellite only)
       fittedOnce: false,
       zooming: false,
       pendingReconcile: false,
@@ -125,6 +171,7 @@ export default defineComponent({
       }
     })
     this.applyTiles()
+    this.applyLabels()
     this.$nextTick(() => this.map.invalidateSize())
     this.reconcile()
     // Keep the map sized to its container (drawer toggle, window resize, panel
@@ -156,16 +203,32 @@ export default defineComponent({
       },
       deep: true,
     },
-    dark() {
-      this.applyTiles()
-    },
     'settings.mapStyle'() {
       this.applyTiles()
+      this.applyLabels() // labels only render over imagery basemaps
+    },
+    'settings.customTileUrl'() {
+      this.applyTiles()
+    },
+    'settings.showLabels'() {
+      this.applyLabels()
+    },
+    'settings.labelsSource'() {
+      this.applyLabels()
     },
   },
   computed: {
-    dark() {
-      return this.$q.dark.isActive
+    // Enabled built-in basemaps plus the user's custom layer when a URL is set.
+    mapStyles() {
+      return styleOptions(this.settings.customTileUrl, this.settings.enabledBasemaps)
+    },
+    // Active basemap is aerial imagery — where the labels overlay is offered.
+    isImagery() {
+      return isImagery(this.settings.mapStyle)
+    },
+    // Available label providers for the picker under the "Street labels" toggle.
+    labelsSources() {
+      return Object.entries(LABELS_SOURCES).map(([value, s]) => ({ value, label: s.label }))
     },
     // Recomputed whenever structure or any marker position changes.
     signature() {
@@ -198,10 +261,61 @@ export default defineComponent({
     },
     applyTiles() {
       if (!this.map) return
-      if (this.tileLayer) this.tileLayer.remove()
-      const b = basemap(this.settings.mapStyle, this.dark)
-      this.tileLayer = L.tileLayer(b.url, b.options).addTo(this.map)
-      this.tileLayer.bringToBack()
+      const b = basemap(this.settings.mapStyle, this.settings.customTileUrl)
+      if (this.tileLayer) {
+        // Update the layer in place instead of recreating it. A fresh L.tileLayer
+        // on every switch loses its zoom-animation transition, so the basemap
+        // freezes during zoom while the (persistent) canvas tracks keep gliding.
+        const opts = this.tileLayer.options
+        opts.maxNativeZoom = b.options.maxNativeZoom
+        opts.subdomains = b.options.subdomains || 'abc'
+        if (this._attribution) this.map.attributionControl.removeAttribution(this._attribution)
+        this._attribution = b.options.attribution
+        this.map.attributionControl.addAttribution(this._attribution)
+        this.tileLayer.setUrl(b.url) // redraws tiles with the updated options
+      } else {
+        // Manage attribution manually (below) — keep it out of the layer options
+        // so Leaflet doesn't also auto-register it and leave a stale entry on switch.
+        const { attribution, ...opts } = b.options
+        this.tileLayer = L.tileLayer(b.url, opts).addTo(this.map)
+        this.tileLayer.bringToBack()
+        this._attribution = attribution
+        this.map.attributionControl.addAttribution(attribution)
+      }
+    },
+    // Transparent street/place overlay — above the basemap, below the tracks
+    // (which live in the higher overlay pane). The layers are created once at
+    // mount pointing at a blank tile (zero network), then flipped to the real
+    // provider via setUrl when wanted. A tile layer added after the map inits
+    // doesn't zoom-animate, so we never recreate them — setUrl reuses the same
+    // (animating) layer, exactly like applyTiles does for the basemap.
+    applyLabels() {
+      if (!this.map) return
+      if (!this.labelsLayers.length) {
+        this.labelsLayers = Array.from({ length: MAX_LABEL_LAYERS }, () => {
+          const layer = L.tileLayer(BLANK_TILE, {
+            maxZoom: MAX_ZOOM,
+            maxNativeZoom: 19,
+            subdomains: 'abcd', // for the {s} in CARTO label URLs
+          }).addTo(this.map)
+          layer.bringToFront() // above the basemap within the tile pane
+          return layer
+        })
+      }
+      const want = this.settings.showLabels && isImagery(this.settings.mapStyle)
+      const src = LABELS_SOURCES[this.settings.labelsSource] || LABELS_SOURCES.esri
+      // Point each layer at the source overlay (spare layers stay blank).
+      this.labelsLayers.forEach((l, i) => {
+        l.setUrl(want ? src.overlays[i] || BLANK_TILE : BLANK_TILE) // no-op if unchanged
+        if (want) l.bringToFront()
+      })
+      // Attribution reflects the visible source only.
+      const attr = want ? src.attribution : null
+      if (this._labelsAttr !== attr) {
+        if (this._labelsAttr) this.map.attributionControl.removeAttribution(this._labelsAttr)
+        if (attr) this.map.attributionControl.addAttribution(attr)
+        this._labelsAttr = attr
+      }
     },
     reconcile() {
       if (!this.map) return

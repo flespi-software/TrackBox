@@ -1,6 +1,5 @@
 <template>
   <div>
-    <div class="text-subtitle2 q-mb-xs">Routing provider API keys</div>
     <div class="text-caption text-grey-6 q-mb-md">
       Keys for the “Build by roads” providers that require one. Stored locally in
       this browser.

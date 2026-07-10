@@ -45,7 +45,14 @@
 import { defineComponent } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { basemap } from '../sim/mapTiles'
+import {
+  basemap,
+  isImagery,
+  LABELS_SOURCES,
+  MAX_LABEL_LAYERS,
+  MAX_ZOOM,
+  BLANK_TILE,
+} from '../sim/mapTiles'
 import { useSettingsStore } from '../stores/settings'
 
 function dotIcon(color, n) {
@@ -74,7 +81,15 @@ export default defineComponent({
     return { settings }
   },
   data() {
-    return { map: null, markers: [], routeLine: null, tileLayer: null, fullscreen: false, zoomHint: false }
+    return {
+      map: null,
+      markers: [],
+      routeLine: null,
+      tileLayer: null,
+      labelsLayers: [],
+      fullscreen: false,
+      zoomHint: false,
+    }
   },
   mounted() {
     // Wheel-zoom off while embedded so scrolling the dialog doesn't zoom the map
@@ -84,6 +99,7 @@ export default defineComponent({
       12,
     )
     this.applyTiles()
+    this.applyLabels()
     this.map.on('click', (e) => {
       if (this.interactive) this.$emit('add', { lat: e.latlng.lat, lon: e.latlng.lng })
     })
@@ -133,6 +149,16 @@ export default defineComponent({
   watch: {
     'settings.mapStyle'() {
       this.applyTiles()
+      this.applyLabels()
+    },
+    'settings.customTileUrl'() {
+      this.applyTiles()
+    },
+    'settings.showLabels'() {
+      this.applyLabels()
+    },
+    'settings.labelsSource'() {
+      this.applyLabels()
     },
     waypoints: {
       handler() {
@@ -150,10 +176,56 @@ export default defineComponent({
   methods: {
     applyTiles() {
       if (!this.map) return
-      if (this.tileLayer) this.tileLayer.remove()
-      const b = basemap(this.settings.mapStyle, this.$q.dark.isActive)
-      this.tileLayer = L.tileLayer(b.url, b.options).addTo(this.map)
-      this.tileLayer.bringToBack()
+      const b = basemap(this.settings.mapStyle, this.settings.customTileUrl)
+      if (this.tileLayer) {
+        // Update in place, not recreate: a fresh layer on each switch loses its
+        // zoom-animation transition and freezes the basemap during zoom.
+        const opts = this.tileLayer.options
+        opts.maxNativeZoom = b.options.maxNativeZoom
+        opts.subdomains = b.options.subdomains || 'abc'
+        if (this._attribution) this.map.attributionControl.removeAttribution(this._attribution)
+        this._attribution = b.options.attribution
+        this.map.attributionControl.addAttribution(this._attribution)
+        this.tileLayer.setUrl(b.url)
+      } else {
+        // Manage attribution manually (below) so Leaflet doesn't also auto-register
+        // it and leave a stale entry on switch.
+        const { attribution, ...opts } = b.options
+        this.tileLayer = L.tileLayer(b.url, opts).addTo(this.map)
+        this.tileLayer.bringToBack()
+        this._attribution = attribution
+        this.map.attributionControl.addAttribution(attribution)
+      }
+    },
+    // Transparent street/place labels over imagery — same technique as SimMap:
+    // created once at mount pointing at a blank tile, flipped to the chosen
+    // source via setUrl so the layers never get recreated (keeps zoom animation)
+    // and issue no requests while hidden. Honours the global labels settings.
+    applyLabels() {
+      if (!this.map) return
+      if (!this.labelsLayers.length) {
+        this.labelsLayers = Array.from({ length: MAX_LABEL_LAYERS }, () => {
+          const layer = L.tileLayer(BLANK_TILE, {
+            maxZoom: MAX_ZOOM,
+            maxNativeZoom: 19,
+            subdomains: 'abcd',
+          }).addTo(this.map)
+          layer.bringToFront()
+          return layer
+        })
+      }
+      const want = this.settings.showLabels && isImagery(this.settings.mapStyle)
+      const src = LABELS_SOURCES[this.settings.labelsSource] || LABELS_SOURCES.esri
+      this.labelsLayers.forEach((l, i) => {
+        l.setUrl(want ? src.overlays[i] || BLANK_TILE : BLANK_TILE)
+        if (want) l.bringToFront()
+      })
+      const attr = want ? src.attribution : null
+      if (this._labelsAttr !== attr) {
+        if (this._labelsAttr) this.map.attributionControl.removeAttribution(this._labelsAttr)
+        if (attr) this.map.attributionControl.addAttribution(attr)
+        this._labelsAttr = attr
+      }
     },
     toggleFullscreen() {
       this.fullscreen = !this.fullscreen

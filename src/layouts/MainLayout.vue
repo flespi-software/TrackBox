@@ -6,13 +6,9 @@
         <q-toolbar-title class="titlebar-title" data-tauri-drag-region>
           <img src="TrackBox.png" class="titlebar-logo" alt="" data-tauri-drag-region />
           {{ product }}
-          <sup
-            class="titlebar-ver"
-            :class="{ 'cursor-pointer': isTauri }"
-            @click="isTauri && checkUpdates()"
-          >
+          <sup class="titlebar-ver cursor-pointer" @click="changelogDialog = true">
             {{ version }}
-            <q-tooltip v-if="isTauri">Check for updates</q-tooltip>
+            <q-tooltip>What’s new</q-tooltip>
           </sup>
         </q-toolbar-title>
         <q-space v-if="isTauri" />
@@ -97,8 +93,20 @@
           <q-space />
           <q-btn icon="mdi-close" flat round dense v-close-popup />
         </q-card-section>
-        <q-card-section>
-          <RouterKeysSettings />
+        <q-card-section class="q-pt-none">
+          <q-list bordered class="rounded-borders">
+            <q-expansion-item icon="mdi-key-variant" label="Routing API keys">
+              <q-card-section class="q-pt-none">
+                <RouterKeysSettings />
+              </q-card-section>
+            </q-expansion-item>
+            <q-separator />
+            <q-expansion-item v-model="mapLayersOpen" icon="mdi-map-outline" label="Map layers">
+              <q-card-section class="q-pt-none">
+                <MapSettings />
+              </q-card-section>
+            </q-expansion-item>
+          </q-list>
         </q-card-section>
         <q-card-section v-if="isTauri" class="q-pt-none">
           <q-separator class="q-mb-md" />
@@ -127,6 +135,14 @@
               label="Show tour"
               no-caps
               @click="startTour"
+            />
+            <q-btn
+              outline
+              color="primary"
+              icon="mdi-history"
+              label="What’s new"
+              no-caps
+              @click="changelogDialog = true"
             />
             <q-btn
               outline
@@ -169,6 +185,7 @@
     <ChangePassword v-model="changePwdDialog" />
     <AboutLicenses v-model="licensesDialog" />
     <LogViewer v-model="logsDialog" />
+    <ChangelogDialog v-model="changelogDialog" />
 
     <!-- Resize handles for the frameless desktop window -->
     <template v-if="isTauri">
@@ -190,14 +207,17 @@ import { useQuasar, LocalStorage } from 'quasar'
 import { useRoute } from 'vue-router'
 import LoginButton from 'src/components/widgets/LoginButton.vue'
 import RouterKeysSettings from 'src/components/RouterKeysSettings.vue'
+import MapSettings from 'src/components/MapSettings.vue'
 import DrawerContent from 'src/components/DrawerContent.vue'
 import MasterPassword from 'src/components/MasterPassword.vue'
 import ChangePassword from 'src/components/ChangePassword.vue'
 import AboutLicenses from 'src/components/AboutLicenses.vue'
 import LogViewer from 'src/components/LogViewer.vue'
+import ChangelogDialog from 'src/components/ChangelogDialog.vue'
 import { runTour, maybeStartFirstRunTour } from 'src/tour'
 
 const THEME_KEY = 'trackbox-theme' // persisted 'dark' | 'light' preference
+const CHANGELOG_SEEN = 'trackbox-changelog-seen' // app version whose changelog was shown
 import { isTauri, getAppWindow, startResize, quitApp } from 'src/platform'
 import { secureStore } from 'src/secureStore'
 import { checkForUpdates } from 'src/updater'
@@ -211,11 +231,13 @@ export default defineComponent({
   components: {
     LoginButton,
     RouterKeysSettings,
+    MapSettings,
     DrawerContent,
     MasterPassword,
     ChangePassword,
     AboutLicenses,
     LogViewer,
+    ChangelogDialog,
   },
 
   setup() {
@@ -226,6 +248,7 @@ export default defineComponent({
     const changePwdDialog = ref(false)
     const licensesDialog = ref(false)
     const logsDialog = ref(false)
+    const changelogDialog = ref(false)
     const startTour = () => {
       settingsDialog.value = false
       runTour($q)
@@ -234,6 +257,13 @@ export default defineComponent({
     const hidePanels = computed(
       () => route.query.hidepanels === '1' || route.query.hidepanels === 'true',
     )
+
+    // Auto-show the changelog once after an upgrade (not on a fresh install).
+    if (!hidePanels.value) {
+      const seen = LocalStorage.getItem(CHANGELOG_SEEN)
+      if (seen && seen !== __APP_VERSION__) changelogDialog.value = true
+      LocalStorage.set(CHANGELOG_SEEN, __APP_VERSION__)
+    }
 
     // Theme: an explicit ?theme= query wins; otherwise restore the saved
     // preference; otherwise fall back to the quasar.config default (dark).
@@ -244,6 +274,25 @@ export default defineComponent({
       if (saved === 'light') $q.dark.set(false)
       else if (saved === 'dark') $q.dark.set(true)
     }
+
+    // Keep a CARTO basemap in step with the app theme (no-op for other layers,
+    // or when the matching CARTO variant is disabled). Immediate so it also
+    // corrects the startup/migrated value.
+    const settings = useSettingsStore()
+    settings.load()
+    watch(() => $q.dark.isActive, (d) => settings.syncCartoBasemap(d), { immediate: true })
+    // The map's layer menu can request the Settings dialog via this flag,
+    // optionally expanding the Map layers section.
+    const mapLayersOpen = ref(false)
+    watch(
+      () => settings.wantSettings,
+      (v) => {
+        if (!v) return
+        settingsDialog.value = true
+        if (v === 'mapLayers') mapLayersOpen.value = true
+        settings.wantSettings = null
+      },
+    )
 
     // Encrypted vault (desktop): prompt to unlock at startup, then load secrets.
     const vaultDialog = ref(secureStore.needsUnlock)
@@ -385,9 +434,11 @@ export default defineComponent({
       version: __APP_VERSION__,
       leftDrawerOpen,
       settingsDialog,
+      mapLayersOpen,
       changePwdDialog,
       licensesDialog,
       logsDialog,
+      changelogDialog,
       startTour,
       hidePanels,
       isTauri,
@@ -421,8 +472,8 @@ export default defineComponent({
 }
 /* App icon sitting next to the title text. */
 .titlebar-logo {
-  height: 20px;
-  width: 20px;
+  height: 28px;
+  width: 28px;
   vertical-align: middle;
   margin-right: 8px;
   margin-bottom: 2px;
