@@ -30,26 +30,38 @@ import { defineComponent } from 'vue'
 import changelog from '../../CHANGELOG.md?raw'
 
 // Minimal parse of our own (trusted) changelog: '## x' -> version, '### x' ->
-// section, '- x' -> item. Inline **bold**/`code` markers are stripped for display.
+// section, '- x' -> item. Soft-wrapped continuation lines are folded back into
+// the current item. Inline **bold**/`code` markers are stripped for display.
 function parseChangelog(md) {
+  const strip = (s) => s.replace(/\*\*|`/g, '')
   const versions = []
   let cur = null
   let sec = null
+  let inItem = false // are we inside a bullet whose wrapped lines should append?
   for (const line of md.split('\n')) {
     let m
     if ((m = line.match(/^##\s+(.+)/))) {
       cur = { title: m[1].replace(/[[\]]/g, ''), sections: [] }
       versions.push(cur)
       sec = null
+      inItem = false
     } else if ((m = line.match(/^###\s+(.+)/)) && cur) {
       sec = { title: m[1], items: [] }
       cur.sections.push(sec)
+      inItem = false
     } else if ((m = line.match(/^[-*]\s+(.+)/)) && cur) {
       if (!sec) {
         sec = { title: '', items: [] }
         cur.sections.push(sec)
       }
-      sec.items.push(m[1].replace(/\*\*|`/g, ''))
+      sec.items.push(strip(m[1]))
+      inItem = true
+    } else if (!line.trim()) {
+      // Blank line ends the current bullet - stop folding into it.
+      inItem = false
+    } else if (inItem && sec && sec.items.length) {
+      // Continuation of a soft-wrapped bullet - append to the last item.
+      sec.items[sec.items.length - 1] += ' ' + strip(line.trim())
     }
   }
   return versions

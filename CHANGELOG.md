@@ -3,6 +3,13 @@
 All notable changes to TrackBox are documented here. This file is bundled into
 the app and shown in Settings -> "What's new".
 
+## [1.2.2]
+
+### Fixed
+- "What's new" changelog viewer no longer cuts entries off at line breaks:
+  soft-wrapped continuation lines are now folded back into their bullet, so
+  multi-line notes show in full.
+
 ## [1.2.1]
 
 ### Fixed
