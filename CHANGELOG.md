@@ -3,6 +3,19 @@
 All notable changes to TrackBox are documented here. This file is bundled into
 the app and shown in Settings -> "What's new".
 
+## [1.2.1]
+
+### Fixed
+- Startup no longer shows a blank window when flespi is unreachable. The region
+  lookup in boot could reject and abort mounting the whole app (a grey, empty
+  window until the next restart); it now times out, falls back to the default
+  region, and always brings the UI up.
+
+### Added
+- Login: a "Can't reach flespi" banner with a Retry button appears under the
+  login button when the backend is unreachable, so an outage reads as a clear
+  retry state instead of a silently failing login.
+
 ## [1.2.0]
 
 ### Added

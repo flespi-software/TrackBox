@@ -73,6 +73,7 @@
       <div class="drawer-login">
         <LoginButton />
       </div>
+      <FlespiOfflineBanner />
       <DrawerContent
         class="drawer-body"
         :vault-locked="vaultLocked"
@@ -206,6 +207,7 @@ import { defineComponent, ref, computed, watch, onMounted, onBeforeUnmount } fro
 import { useQuasar, LocalStorage } from 'quasar'
 import { useRoute } from 'vue-router'
 import LoginButton from 'src/components/widgets/LoginButton.vue'
+import FlespiOfflineBanner from 'src/components/widgets/FlespiOfflineBanner.vue'
 import RouterKeysSettings from 'src/components/RouterKeysSettings.vue'
 import MapSettings from 'src/components/MapSettings.vue'
 import DrawerContent from 'src/components/DrawerContent.vue'
@@ -230,6 +232,7 @@ export default defineComponent({
 
   components: {
     LoginButton,
+    FlespiOfflineBanner,
     RouterKeysSettings,
     MapSettings,
     DrawerContent,

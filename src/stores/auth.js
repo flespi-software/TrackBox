@@ -1,5 +1,6 @@
 import { defineStore, acceptHMRUpdate } from 'pinia'
 import { SessionStorage } from 'quasar'
+import axios from 'axios'
 import { useMiscStore } from './misc'
 import { isTauri } from '../platform'
 import { secureStore } from '../secureStore'
@@ -12,6 +13,7 @@ export const useAuthStore = defineStore('auth', {
 
   state: () => ({
     httpOnline: undefined, // application is available by HTTP flag; set to false if failed to get favicon by HTTP
+    flespiOnline: undefined, // flespi backend reachable flag; undefined until first probe (see pingFlespi)
     socketConnected: undefined, // MQTT socket connected flag; initially set to undefined so that Offline corpse won't apper at F5 (after reload)
     token: '',
     cid: 0,
@@ -42,6 +44,19 @@ export const useAuthStore = defineStore('auth', {
     },
     setHttpOnline(online) {
       this.httpOnline = online
+    },
+    /* Lightweight, token-less reachability probe against flespi. Drives the
+       "can't reach flespi" login banner and its Retry button. */
+    async pingFlespi() {
+      const host = (this.$region && this.$region.rest) || 'https://flespi.io'
+      try {
+        await axios.get(`${host}/auth/regions?_=${new Date().getTime()}`, { timeout: 8000 })
+        this.flespiOnline = true
+      } catch (e) {
+        if (process.env.DEV) console.log('[auth] pingFlespi failed', e)
+        this.flespiOnline = false
+      }
+      return this.flespiOnline
     },
     async checkConnection() {
       try {
