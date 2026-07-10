@@ -1,4 +1,4 @@
-// Device (REST) — POST /gw/devices/{selector}/messages via the authenticated
+// Device (REST) - POST /gw/devices/{selector}/messages via the authenticated
 // connector. Not a wire protocol; registers messages straight into a device.
 
 function deviceSelector(t) {

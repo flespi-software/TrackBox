@@ -1,4 +1,4 @@
-// BRouter — public instance. No API key. Verified live (CORS *).
+// BRouter - public instance. No API key. Verified live (CORS *).
 // Returns GeoJSON with [lon, lat, altitude].
 import { axios } from './util'
 

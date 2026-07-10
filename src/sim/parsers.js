@@ -2,7 +2,7 @@
 //   [{ lat, lon, timestamp?(unix seconds), altitude?, extra? }, ...]
 //
 // Supported formats:
-//   - flespi-json : flespi messages — a bare array [{...}], a single object,
+//   - flespi-json : flespi messages - a bare array [{...}], a single object,
 //                   or a raw REST response {"result":[{...}]} (the `result`
 //                   wrapper is unwrapped). Coordinates may be flat dotted
 //                   ("position.latitude") or nested (position.latitude).
@@ -72,7 +72,28 @@ export function parseRoute(fileName, text, format = 'auto') {
     points.length > 1 &&
     points.every((p) => Number.isFinite(p.speed)) &&
     points.some((p) => p.speed > 0)
-  return { format: fmt, points, hasTimes, hasSpeeds }
+  const result = { format: fmt, points, hasTimes, hasSpeeds }
+  // A TrackBox GPX export carries the full simulator config (build waypoints +
+  // options) in a <trackbox:sim> extension - surface it so import can restore it.
+  if (fmt === 'gpx') {
+    const config = parseTrackboxConfig(text)
+    if (config) result.config = config
+  }
+  return result
+}
+
+/* Read the trackbox config blob from a GPX export, or null if absent/invalid. */
+function parseTrackboxConfig(text) {
+  if (!/<trackbox:sim/i.test(text)) return null
+  try {
+    const doc = parseXml(text)
+    const el = doc.getElementsByTagNameNS('*', 'sim')[0]
+    if (!el) return null
+    const cfg = JSON.parse(el.textContent.trim())
+    return cfg && typeof cfg === 'object' ? cfg : null
+  } catch {
+    return null
+  }
 }
 
 // ---- flespi messages JSON ----
@@ -210,7 +231,7 @@ function parseKml(text) {
   const doc = parseXml(text)
   const out = []
 
-  // gx:Track — paired <when> and <gx:coord> ("lon lat alt")
+  // gx:Track - paired <when> and <gx:coord> ("lon lat alt")
   const tracks = localAll(doc, 'Track')
   for (const track of tracks) {
     const whens = Array.from(track.getElementsByTagName('when')).concat(

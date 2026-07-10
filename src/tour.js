@@ -1,6 +1,6 @@
 // Interactive tours (coach marks) via driver.js.
 //  - main tour: the app shell (runs once on first launch, re-runnable from
-//    Settings → "Show tour").
+//    Settings -> "Show tour").
 //  - dialog tour: the New-simulator dialog (runs once the first time it opens,
 //    re-runnable from the "?" in the dialog header).
 import { driver } from 'driver.js'
@@ -9,7 +9,7 @@ import 'driver.js/dist/driver.css'
 const MAIN_FLAG = 'trackbox-tour-done'
 const DIALOG_FLAG = 'trackbox-tour-dialog-done'
 
-// One tour at a time — don't let the dialog tour fire over the main one.
+// One tour at a time - don't let the dialog tour fire over the main one.
 let active = false
 
 function start(steps, flag) {
@@ -44,7 +44,7 @@ function mainSteps() {
       popover: {
         title: `Welcome to ${__APP_PRODUCT__}`,
         description:
-          'Simulate GPS trackers that feed data into flespi — drive virtual devices along routes and watch them stream messages. Here are the basics.',
+          'Simulate GPS trackers that feed data into flespi - drive virtual devices along routes and watch them stream messages. Here are the basics.',
       },
     },
     {
@@ -60,7 +60,7 @@ function mainSteps() {
       popover: {
         title: 'Add a simulator',
         description:
-          'Create a device: upload a route (GPX / KML / GeoJSON / flespi-JSON) or build one by roads, then choose how it sends — Device REST, HTTP channel or MQTT.',
+          'Create a device: upload a route (GPX / KML / GeoJSON / flespi-JSON) or build one by roads, then choose how it sends - Device REST, HTTP channel or MQTT.',
       },
     },
     {
@@ -68,7 +68,7 @@ function mainSteps() {
       popover: {
         title: 'Run it',
         description:
-          'Start all simulators — they move on the map and send messages on a steady cadence. Each card has its own start/pause/stop and live controls.',
+          'Start all simulators - they move on the map and send messages on a steady cadence. Each card has its own start/pause/stop and live controls.',
       },
     },
     {
@@ -76,12 +76,12 @@ function mainSteps() {
       popover: { title: 'Theme', description: 'Switch between light and dark.' },
     },
     {
-      // Desktop only — auto-skipped on the web build (the element won't exist).
+      // Desktop only - auto-skipped on the web build (the element won't exist).
       element: '#tour-quit',
       popover: {
         title: 'Quit vs. close',
         description:
-          'Closing the window (✕) hides the app to the system tray — your simulators keep running in the background. Use this Quit button to exit the app completely.',
+          'Closing the window (X) hides the app to the system tray - your simulators keep running in the background. Use this Quit button to exit the app completely.',
       },
     },
   ]
@@ -101,7 +101,7 @@ function dialogSteps() {
       popover: {
         title: 'Route',
         description:
-          'Upload a route file (GPX / KML / GeoJSON / flespi-JSON) or build one by roads — click the map to drop waypoints. A loaded route is previewed on the map.',
+          'Upload a route file (GPX / KML / GeoJSON / flespi-JSON) or build one by roads - click the map to drop waypoints. A loaded route is previewed on the map.',
       },
     },
     {
@@ -109,7 +109,7 @@ function dialogSteps() {
       popover: {
         title: 'How it sends',
         description:
-          'Pick the transport — Device REST (simplest), HTTP channel, or MQTT — and fill the required fields (marked *).',
+          'Pick the transport - Device REST (simplest), HTTP channel, or MQTT - and fill the required fields (marked *).',
       },
     },
     {
@@ -122,7 +122,7 @@ function dialogSteps() {
     },
     {
       element: '#tour-save',
-      popover: { title: 'Save', description: 'Save the simulator, then press ▶ on its card to run it.' },
+      popover: { title: 'Save', description: 'Save the simulator, then press > on its card to run it.' },
     },
   ]
 }

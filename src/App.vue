@@ -19,8 +19,8 @@ export default defineComponent({
       document.documentElement.classList.add('app-framed')
       if (isTauri) document.documentElement.classList.add('app-transparent')
     }
-    // Disable the webview context menu ("Inspect element", reload, …) in the
-    // desktop release build — kept in dev so the inspector stays available.
+    // Disable the webview context menu ("Inspect element", reload, ...) in the
+    // desktop release build - kept in dev so the inspector stays available.
     if (isTauri && !process.env.DEV) {
       window.addEventListener('contextmenu', (e) => e.preventDefault())
     }

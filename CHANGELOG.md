@@ -1,7 +1,15 @@
 # Changelog
 
 All notable changes to TrackBox are documented here. This file is bundled into
-the app and shown in Settings → “What’s new”.
+the app and shown in Settings -> "What's new".
+
+## [1.2.0]
+
+### Added
+- Export a simulator's route as GPX (from the card menu) - a standard track plus
+  key waypoints any GPX viewer can open. TrackBox also embeds the full simulator
+  config (build waypoints, router, and all options) in a GPX extension beside the
+  route, so re-importing the file restores the simulator losslessly.
 
 ## [1.1.2]
 
@@ -16,24 +24,24 @@ the app and shown in Settings → “What’s new”.
 ## [1.1.1]
 
 ### Added
-- Web: log in via a token URL — `/#/token/<flespi-token>` signs in and redirects
+- Web: log in via a token URL - `/#/token/<flespi-token>` signs in and redirects
   to the app (the token is removed from browser history).
 
 ## [1.1.0]
 
 ### Added
-- Web: banner offering the desktop download, tailored to the visitor’s OS
+- Web: banner offering the desktop download, tailored to the visitor's OS
   (light & dark themes).
-- Map: many more basemaps — CARTO light/dark (theme-following), OpenTopoMap,
+- Map: many more basemaps - CARTO light/dark (theme-following), OpenTopoMap,
   CyclOSM, Humanitarian, Esri Topographic, and extra satellite sources (Esri
-  Clarity, USGS) — each toggleable in Settings → Map layers.
-- Map: optional street/place labels overlay on satellite basemaps — toggle
-  “Street labels” in the basemap menu, with a choice of source: Esri (roads +
+  Clarity, USGS) - each toggleable in Settings -> Map layers.
+- Map: optional street/place labels overlay on satellite basemaps - toggle
+  "Street labels" in the basemap menu, with a choice of source: Esri (roads +
   labels), or OSM/CARTO labels-only in light or dark text.
-- Map: “Configure layers…” shortcut in the basemap menu opens the layer settings.
+- Map: "Configure layers..." shortcut in the basemap menu opens the layer settings.
 - Map: custom tile-URL layer with `{z}/{x}/{y}` validation.
-- In-app changelog (this window) — open it from the version in the title bar or
-  Settings → “What’s new”; also shown automatically once after an update.
+- In-app changelog (this window) - open it from the version in the title bar or
+  Settings -> "What's new"; also shown automatically once after an update.
 - Settings: collapsible sections.
 
 ### Fixed

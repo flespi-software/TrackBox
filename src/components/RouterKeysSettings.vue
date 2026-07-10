@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="text-caption text-grey-6 q-mb-md">
-      Keys for the “Build by roads” providers that require one. Stored locally in
+      Keys for the "Build by roads" providers that require one. Stored locally in
       this browser.
     </div>
 

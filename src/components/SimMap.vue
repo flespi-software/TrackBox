@@ -76,7 +76,7 @@
             <q-item-section side>
               <q-icon name="mdi-cog-outline" size="18px" color="grey-6" />
             </q-item-section>
-            <q-item-section class="text-grey-7">Configure layers…</q-item-section>
+            <q-item-section class="text-grey-7">Configure layers...</q-item-section>
           </q-item>
         </q-list>
       </q-menu>
@@ -158,7 +158,7 @@ export default defineComponent({
       // to reset, leaving the track at the wrong scale). Also faster for big routes.
       preferCanvas: true,
     }).setView([54.6872, 25.2797], 6)
-    // Don't add/remove layers mid zoom-animation — that triggers Leaflet's
+    // Don't add/remove layers mid zoom-animation - that triggers Leaflet's
     // "_animateZoom on null map" crash. Defer reconcile until the zoom settles.
     this.map.on('zoomstart', () => {
       this.zooming = true
@@ -175,7 +175,7 @@ export default defineComponent({
     this.$nextTick(() => this.map.invalidateSize())
     this.reconcile()
     // Keep the map sized to its container (drawer toggle, window resize, panel
-    // changes) — otherwise Leaflet shows grey unrendered strips.
+    // changes) - otherwise Leaflet shows grey unrendered strips.
     this._ro = new ResizeObserver(() => this.onResize())
     this._ro.observe(this.$refs.mapEl)
   },
@@ -222,7 +222,7 @@ export default defineComponent({
     mapStyles() {
       return styleOptions(this.settings.customTileUrl, this.settings.enabledBasemaps)
     },
-    // Active basemap is aerial imagery — where the labels overlay is offered.
+    // Active basemap is aerial imagery - where the labels overlay is offered.
     isImagery() {
       return isImagery(this.settings.mapStyle)
     },
@@ -254,7 +254,7 @@ export default defineComponent({
       this._resizeTimer = setTimeout(() => {
         this._resizeTimer = null
         if (!this.map) return
-        // Resizing mid-zoom can desync vector layers — wait for the zoom to settle.
+        // Resizing mid-zoom can desync vector layers - wait for the zoom to settle.
         if (this.zooming) return this.onResize()
         this.map.invalidateSize({ animate: false })
       }, 160)
@@ -274,7 +274,7 @@ export default defineComponent({
         this.map.attributionControl.addAttribution(this._attribution)
         this.tileLayer.setUrl(b.url) // redraws tiles with the updated options
       } else {
-        // Manage attribution manually (below) — keep it out of the layer options
+        // Manage attribution manually (below) - keep it out of the layer options
         // so Leaflet doesn't also auto-register it and leave a stale entry on switch.
         const { attribution, ...opts } = b.options
         this.tileLayer = L.tileLayer(b.url, opts).addTo(this.map)
@@ -283,11 +283,11 @@ export default defineComponent({
         this.map.attributionControl.addAttribution(attribution)
       }
     },
-    // Transparent street/place overlay — above the basemap, below the tracks
+    // Transparent street/place overlay - above the basemap, below the tracks
     // (which live in the higher overlay pane). The layers are created once at
     // mount pointing at a blank tile (zero network), then flipped to the real
     // provider via setUrl when wanted. A tile layer added after the map inits
-    // doesn't zoom-animate, so we never recreate them — setUrl reuses the same
+    // doesn't zoom-animate, so we never recreate them - setUrl reuses the same
     // (animating) layer, exactly like applyTiles does for the basemap.
     applyLabels() {
       if (!this.map) return
@@ -332,7 +332,7 @@ export default defineComponent({
           entry = {}
           this.layers[sim.id] = entry
         }
-        // Route polyline (track) — can be hidden per simulator.
+        // Route polyline (track) - can be hidden per simulator.
         const latlngs = sim.source.points.map((p) => [p.lat, p.lon])
         if (sim.hideTrack) {
           if (entry.polyline) {
@@ -351,7 +351,7 @@ export default defineComponent({
           entry.pointCount = latlngs.length
           entry.color = sim.color
         }
-        // Configured waypoints (placed during route building) — numbered badges.
+        // Configured waypoints (placed during route building) - numbered badges.
         const wps = (!sim.hideTrack && sim.source.build && sim.source.build.waypoints) || []
         const wpKey = waypointKey(sim)
         if (!wps.length) {
@@ -368,7 +368,7 @@ export default defineComponent({
               keyboard: false,
               zIndexOffset: -500, // keep below the moving arrow marker
             }).addTo(this.map)
-            const stop = w.sec > 0 ? ` · ${w.sec}s stop` : ''
+            const stop = w.sec > 0 ? ` \u00B7 ${w.sec}s stop` : ''
             m.bindTooltip(`Waypoint ${i + 1}${stop}`, { direction: 'top', offset: [0, -10] })
             return m
           })

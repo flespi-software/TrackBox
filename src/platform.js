@@ -1,7 +1,7 @@
 // Platform abstraction: web / PWA vs. Tauri desktop.
 //
 // In Tauri we route certain network calls through the native HTTP plugin, which
-// bypasses the webview's CORS / mixed-content restrictions — this is what makes
+// bypasses the webview's CORS / mixed-content restrictions - this is what makes
 // the flespi HTTP channel (http://gw.flespi.io:<port>) work from the desktop app.
 
 export const isTauri =
@@ -63,7 +63,7 @@ export async function startResize(direction) {
     const { getCurrentWindow, ResizeDirection } = await import('@tauri-apps/api/window')
     await getCurrentWindow().startResizeDragging(ResizeDirection[direction])
   } catch {
-    // ignore — resize is best-effort
+    // ignore - resize is best-effort
   }
 }
 
@@ -97,6 +97,35 @@ export async function httpGet(url, { timeout = 15000 } = {}) {
     throw err
   }
   return resp.text()
+}
+
+/* Save text to a file. Tauri: native "Save as" dialog, then write the chosen
+   path via the fs plugin (a blob-anchor download is unreliable in the frameless
+   webview). Web/PWA: a normal browser download. Returns { saved } where saved is
+   'file' (with `path`), 'browser', or 'cancelled' (user dismissed the dialog). */
+export async function saveTextFile(filename, text, { mime = 'application/octet-stream', filters } = {}) {
+  if (isTauri) {
+    try {
+      const { save } = await import('@tauri-apps/plugin-dialog')
+      const { writeTextFile } = await import('@tauri-apps/plugin-fs')
+      const path = await save({ defaultPath: filename, filters })
+      if (!path) return { saved: 'cancelled' }
+      await writeTextFile(path, text)
+      return { saved: 'file', path }
+    } catch (e) {
+      // Fall through to the browser download as a best-effort backup.
+      if (process.env.DEV) console.log('[saveTextFile] native save failed', e)
+    }
+  }
+  const url = URL.createObjectURL(new Blob([text], { type: mime }))
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+  return { saved: 'browser', name: filename }
 }
 
 /* Open a URL in the user's real browser (system browser under Tauri). */

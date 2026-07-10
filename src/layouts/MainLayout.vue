@@ -8,7 +8,7 @@
           {{ product }}
           <sup class="titlebar-ver cursor-pointer" @click="changelogDialog = true">
             {{ version }}
-            <q-tooltip>What’s new</q-tooltip>
+            <q-tooltip>What's new</q-tooltip>
           </sup>
         </q-toolbar-title>
         <q-space v-if="isTauri" />
@@ -140,7 +140,7 @@
               outline
               color="primary"
               icon="mdi-history"
-              label="What’s new"
+              label="What's new"
               no-caps
               @click="changelogDialog = true"
             />
@@ -175,7 +175,7 @@
             @click="settingsDialog = false; logsDialog = true"
           />
           <div class="text-caption text-grey-6 q-mt-xs">
-            Recent in-app events (sends, errors, sync) — handy when something doesn't work.
+            Recent in-app events (sends, errors, sync) - handy when something doesn't work.
           </div>
         </q-card-section>
       </q-card>
@@ -306,7 +306,7 @@ export default defineComponent({
         const stored = await secureStore.get('flespi-token')
         if (process.env.DEV) console.log('[vault] stored token present:', !!stored, 'in-memory:', !!auth.token)
         if (auth.token) {
-          // Logged in before unlocking the vault — persist the token now.
+          // Logged in before unlocking the vault - persist the token now.
           await secureStore.set('flespi-token', auth.token)
         } else if (stored) {
           await auth.setToken(stored)
@@ -321,7 +321,7 @@ export default defineComponent({
         if (process.env.DEV) console.log('[vault] keys load failed', e)
       }
     }
-    // Warn when the user skips the vault — secrets won't be persisted.
+    // Warn when the user skips the vault - secrets won't be persisted.
     watch(vaultDialog, (open) => {
       if (!open && secureStore.needsUnlock) {
         vaultLocked.value = true
@@ -354,7 +354,7 @@ export default defineComponent({
         persistent: true,
         ok: { label: 'Quit', color: 'negative' },
       }).onOk(() => {
-        // Persist playback state now — beforeunload may not fire on a Tauri quit.
+        // Persist playback state now - beforeunload may not fire on a Tauri quit.
         sims.saveState()
         quitApp()
       })
@@ -373,7 +373,7 @@ export default defineComponent({
 
     onMounted(async () => {
       checkForUpdates()
-      // First-run interactive tour (once; re-runnable from Settings → Show tour).
+      // First-run interactive tour (once; re-runnable from Settings -> Show tour).
       if (!hidePanels.value) maybeStartFirstRunTour($q)
       if (!isTauri) {
         // Web: simulators run only while this tab is open, so warn before a
@@ -409,7 +409,7 @@ export default defineComponent({
           async (n) => {
             const tray = await TrayIcon.getById('main-tray')
             if (!tray) return
-            await tray.setTooltip(n > 0 ? `${__APP_PRODUCT__} — ${n} running` : __APP_PRODUCT__)
+            await tray.setTooltip(n > 0 ? `${__APP_PRODUCT__} - ${n} running` : __APP_PRODUCT__)
             try {
               await tray.setTitle(n > 0 ? String(n) : '')
             } catch {
@@ -439,7 +439,7 @@ export default defineComponent({
             maximized.value = await w.isMaximized()
           })
         } catch {
-          // ignore — window state is best-effort
+          // ignore - window state is best-effort
         }
       })
     }

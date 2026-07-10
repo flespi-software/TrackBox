@@ -10,8 +10,8 @@
     <div class="rb-hint">
       {{
         interactive
-          ? 'Click to add waypoints · drag to adjust · Ctrl+scroll or +/− to zoom'
-          : 'Route preview · Ctrl+scroll or +/− to zoom'
+          ? 'Click to add waypoints \u00B7 drag to adjust \u00B7 Ctrl+scroll or +/- to zoom'
+          : 'Route preview \u00B7 Ctrl+scroll or +/- to zoom'
       }}
     </div>
     <q-btn
@@ -111,7 +111,7 @@ export default defineComponent({
     this._allowInitialFit = this.routePoints.length > 1
     this.renderWaypoints()
     this.renderRoute()
-    // Ctrl/⌘ + wheel zooms toward the cursor while embedded; plain scroll is left
+    // Ctrl/Cmd + wheel zooms toward the cursor while embedded; plain scroll is left
     // to the dialog (and shows a hint). Fullscreen keeps native wheel zoom.
     this._onWheel = (e) => {
       if (this.fullscreen) return
@@ -197,7 +197,7 @@ export default defineComponent({
         this.map.attributionControl.addAttribution(attribution)
       }
     },
-    // Transparent street/place labels over imagery — same technique as SimMap:
+    // Transparent street/place labels over imagery - same technique as SimMap:
     // created once at mount pointing at a blank tile, flipped to the chosen
     // source via setUrl so the layers never get recreated (keeps zoom animation)
     // and issue no requests while hidden. Honours the global labels settings.
@@ -273,7 +273,7 @@ export default defineComponent({
           this.routePoints.map((p) => [p.lat, p.lon]),
           { color: this.color, weight: 4, opacity: 0.8 },
         ).addTo(this.map)
-        // Fit only for the read-only preview, or once when opening an existing route —
+        // Fit only for the read-only preview, or once when opening an existing route -
         // not on every waypoint added while building (that zooms the map out from
         // under the user). Non-animated: the dialog can close right after building,
         // and tearing down the map mid zoom-animation crashes Leaflet.

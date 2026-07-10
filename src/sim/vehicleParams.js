@@ -3,7 +3,7 @@
 // /gw/message-parameters). Booleans render as toggles, percent as 0..100
 // sliders, number as a numeric input.
 
-// `auto: true` marks a parameter the engine can derive from motion/stops — those
+// `auto: true` marks a parameter the engine can derive from motion/stops - those
 // get an "Auto" checkbox in the dialog (and the SimEngine derives them per-param).
 export const PARAM_GROUPS = [
   {
@@ -24,7 +24,7 @@ export const PARAM_GROUPS = [
       { key: 'vehicle.mileage', label: 'Mileage', type: 'number', unit: 'km', default: 0, min: 0, max: 1e6, step: 1, auto: true },
       { key: 'can.vehicle.mileage', label: 'Mileage (CAN)', type: 'number', unit: 'km', default: 0, min: 0, max: 1e6, step: 1, auto: true },
       { key: 'can.fuel.consumed', label: 'Fuel consumed', type: 'number', unit: 'l', default: 0, min: 0, max: 1e5, step: 1, auto: true },
-      { key: 'can.engine.coolant.temperature', label: 'Coolant temp', type: 'number', unit: '°C', default: 22, min: -40, max: 130, step: 1, auto: true },
+      { key: 'can.engine.coolant.temperature', label: 'Coolant temp', type: 'number', unit: '\u00B0C', default: 22, min: -40, max: 130, step: 1, auto: true },
       { key: 'engine.motorhours', label: 'Engine hours', type: 'number', unit: 'h', default: 0, min: 0, max: 1e5, step: 1, auto: true },
     ],
   },

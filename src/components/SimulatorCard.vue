@@ -69,6 +69,12 @@
                 </q-item-section>
                 <q-item-section>Edit</q-item-section>
               </q-item>
+              <q-item clickable v-close-popup @click="exportGpx">
+                <q-item-section side>
+                  <q-icon name="mdi-download-outline" size="18px" />
+                </q-item-section>
+                <q-item-section>Export GPX</q-item-section>
+              </q-item>
               <q-separator />
               <q-item clickable v-close-popup class="text-negative" @click="confirmDelete">
                 <q-item-section side>
@@ -119,11 +125,11 @@
       </q-banner>
     </div>
 
-    <!-- Collapsed actions (always visible): sent count · sync · visibility · expand -->
+    <!-- Collapsed actions (always visible): sent count - sync - visibility - expand -->
     <q-card-actions align="between" class="q-pt-none">
       <div class="text-caption text-grey-6">
         <q-icon name="mdi-upload" size="14px" /> {{ sim.runtime.sentCount }}
-        <span v-if="sim.runtime.lastSentAt"> · {{ ago }}</span>
+        <span v-if="sim.runtime.lastSentAt"> &middot; {{ ago }}</span>
       </div>
       <div>
         <q-btn
@@ -137,8 +143,8 @@
         >
           <q-tooltip>
             {{ sim.cloudSync
-              ? 'Synced to cloud — click to keep this flow local only'
-              : 'Local only — click to sync this flow to the cloud' }}
+              ? 'Synced to cloud - click to keep this flow local only'
+              : 'Local only - click to sync this flow to the cloud' }}
           </q-tooltip>
         </q-btn>
         <q-btn
@@ -173,7 +179,7 @@
         <q-card-section class="q-py-sm">
           <div class="row items-center no-wrap">
             <div class="text-caption text-grey-7 q-mr-sm" style="width: 64px">
-              {{ usesRouteSpeed ? 'Speed ×' : 'km/h' }}
+              {{ usesRouteSpeed ? 'Speed \u00D7' : 'km/h' }}
             </div>
             <q-slider
               v-if="usesRouteSpeed"
@@ -183,7 +189,7 @@
               :step="0.5"
               dense
               label
-              :label-value="sim.options.timeMultiplier + '×'"
+              :label-value="sim.options.timeMultiplier + '\u00D7'"
               @update:model-value="(v) => store.setTimeMultiplier(sim.id, v)"
             />
             <q-slider
@@ -199,7 +205,7 @@
           </div>
         </q-card-section>
 
-        <!-- Sent vehicle-state parameters (doors, seatbelt, pedals, …) -->
+        <!-- Sent vehicle-state parameters (doors, seatbelt, pedals, ...) -->
         <q-card-section v-if="boolParams.length" class="q-py-none q-pb-sm">
           <div class="text-caption text-grey-6 q-mb-xs">Sent parameters</div>
           <div class="row items-center q-gutter-xs">
@@ -229,6 +235,8 @@ import { useSimulatorsStore } from '../stores/simulators'
 import { useAuthStore } from '../stores/auth'
 import { transportSummary, TRANSPORTS } from '../sim/transports'
 import { paramByKey, paramLabel as paramLabelOf } from '../sim/vehicleParams'
+import { simToGpx, gpxFileName } from '../sim/gpxExport'
+import { saveTextFile } from '../platform'
 import ProtocolIcon from './ProtocolIcon.vue'
 
 export default defineComponent({
@@ -246,7 +254,7 @@ export default defineComponent({
       now: Date.now(),
       timerId: null,
       expanded: false,
-      // Same swatches the store assigns from, plus extras — 20 fills the picker grid.
+      // Same swatches the store assigns from, plus extras - 20 fills the picker grid.
       palette: [
         '#e53935', '#1e88e5', '#43a047', '#fb8c00', '#8e24aa',
         '#00acc1', '#fdd835', '#6d4c41', '#3949ab', '#d81b60',
@@ -313,7 +321,7 @@ export default defineComponent({
       if (ls && key in ls) return !!ls[key]
       return !!this.sim.options.vehicleParams[key]
     },
-    // Clicking a chip is a live manual override — wins over auto, so any param
+    // Clicking a chip is a live manual override - wins over auto, so any param
     // (even an automatic one) can be flipped by hand while simulating.
     toggleParam(key) {
       this.store.setManualOverride(this.sim.id, key, !this.chipValue(key))
@@ -329,13 +337,28 @@ export default defineComponent({
         .dialog({
           title: 'Stop simulator',
           message:
-            `Stop "${this.sim.name}"? This resets it — playback will restart from the ` +
+            `Stop "${this.sim.name}"? This resets it - playback will restart from the ` +
             `beginning. Use pause instead to keep the current position.`,
           cancel: true,
           ok: { label: 'Stop', color: 'negative' },
           persistent: true,
         })
         .onOk(() => this.store.stop(this.sim.id))
+    },
+    // Standard GPX (route geometry + key waypoints) any viewer can open; the
+    // full simulator config rides along in an extension for lossless re-import.
+    async exportGpx() {
+      try {
+        const res = await saveTextFile(gpxFileName(this.sim), simToGpx(this.sim), {
+          mime: 'application/gpx+xml',
+          filters: [{ name: 'GPX', extensions: ['gpx'] }],
+        })
+        if (res?.saved === 'file') {
+          this.$q.notify({ type: 'positive', message: `Saved ${res.path}` })
+        }
+      } catch (e) {
+        this.$q.notify({ type: 'negative', message: `Export failed: ${e.message}` })
+      }
     },
     confirmDelete() {
       this.$q

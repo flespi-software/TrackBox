@@ -1,6 +1,6 @@
 // Basemap tiles: free, no API key, CORS-enabled providers. Registry-driven so
 // new layers are one entry. `default: true` layers are on out of the box; the
-// rest are opt-in via settings. The two CARTO layers are the theme defaults —
+// rest are opt-in via settings. The two CARTO layers are the theme defaults -
 // switching the app theme flips between them (see settings.syncCartoBasemap).
 
 // Zoom the map allows. Beyond a layer's maxNativeZoom, Leaflet upscales the last
@@ -45,11 +45,11 @@ export const BASEMAPS = [
     imagery: true,
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     maxNativeZoom: 19,
-    attribution: 'Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics',
+    attribution: 'Tiles &copy; Esri - Source: Esri, Maxar, Earthstar Geographics',
   },
   {
     value: 'esri-clarity',
-    label: 'Satellite — Esri Clarity (global)',
+    label: 'Satellite - Esri Clarity (global)',
     default: false,
     imagery: true,
     url: 'https://clarity.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -58,12 +58,12 @@ export const BASEMAPS = [
   },
   {
     value: 'usgs-imagery',
-    label: 'Satellite — USGS (US only)',
+    label: 'Satellite - USGS (US only)',
     default: false,
     imagery: true,
     url: 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}',
     maxNativeZoom: 16,
-    attribution: 'Imagery &copy; USGS — The National Map',
+    attribution: 'Imagery &copy; USGS - The National Map',
   },
   {
     value: 'opentopo',
@@ -119,7 +119,7 @@ export function isImagery(style) {
   return !!(def && def.imagery)
 }
 
-// Transparent label overlays for imagery — free, no key. Rendered above the
+// Transparent label overlays for imagery - free, no key. Rendered above the
 // basemap but below the tracks. Each source lists 1-2 overlay tile URLs.
 export const LABELS_SOURCES = {
   esri: {
@@ -139,7 +139,7 @@ export const LABELS_SOURCES = {
     attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
   },
   'osm-dark': {
-    // `light_only_labels` = dark text (for light basemaps) — suits lighter
+    // `light_only_labels` = dark text (for light basemaps) - suits lighter
     // terrain or a darker-text preference.
     label: 'OSM / CARTO (dark text)',
     overlays: ['https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png'],
@@ -149,7 +149,7 @@ export const LABELS_SOURCES = {
 export const LABELS_DEFAULT = 'esri'
 export const MAX_LABEL_LAYERS = 2 // most overlays any single source uses
 
-// 1×1 transparent PNG — label layers point here when hidden, so they issue no
+// 1x1 transparent PNG - label layers point here when hidden, so they issue no
 // network requests while staying mounted (and thus zoom-animated).
 export const BLANK_TILE =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='

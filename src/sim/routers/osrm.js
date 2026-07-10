@@ -1,4 +1,4 @@
-// OSRM — FOSSGIS public instance. No API key. Verified live (CORS *).
+// OSRM - FOSSGIS public instance. No API key. Verified live (CORS *).
 import { axios } from './util'
 
 export default {

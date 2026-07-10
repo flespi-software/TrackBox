@@ -3,7 +3,7 @@
 //  - Tauri desktop: encrypted Stronghold vault (must be unlocked with a master
 //    password before use).
 //  - Web / PWA: namespaced LocalStorage (no OS-level encryption available in a
-//    browser — this is the expected best-effort there).
+//    browser - this is the expected best-effort there).
 //
 // All operations are serialized through a single queue so two vault operations
 // never overlap (overlapping writes are a corruption source).
@@ -13,7 +13,7 @@ import { isTauri } from './platform'
 const WEB_PREFIX = 'trackbox-secure:'
 const VAULT_FILE = 'vault.hold'
 const CLIENT = 'trackbox'
-// The secrets the app keeps in the vault — used to re-key on password change.
+// The secrets the app keeps in the vault - used to re-key on password change.
 const KNOWN_KEYS = ['flespi-token', 'router-apiKeys']
 
 let unlocked = !isTauri // web is always "unlocked"
@@ -40,7 +40,7 @@ async function vaultPath() {
 
 // ---- internal (already-locked) implementations ----
 
-// Whether a vault file already exists → distinguishes "set a new password" from
+// Whether a vault file already exists -> distinguishes "set a new password" from
 // "unlock the existing vault" in the UI. (Tauri only; web has no vault file.)
 async function _exists() {
   if (!isTauri) return false
@@ -91,7 +91,7 @@ async function _changePassword(newPassword) {
   const path = await vaultPath()
   const tmp = `${path}.new`
 
-  // 1) Build the re-keyed vault at a temp path. Any failure here is safe — the
+  // 1) Build the re-keyed vault at a temp path. Any failure here is safe - the
   //    live vault is untouched.
   try {
     if (await exists(tmp)) await remove(tmp)
@@ -150,7 +150,7 @@ async function _reset() {
   try {
     if (await exists(path)) await remove(path)
   } catch {
-    // ignore — file may not exist
+    // ignore - file may not exist
   }
   vault = null
   unlocked = false
@@ -174,7 +174,7 @@ async function _remove(key) {
     await vault.store.remove(key)
     await vault.stronghold.save()
   } catch {
-    // key may not exist — ignore
+    // key may not exist - ignore
   }
 }
 

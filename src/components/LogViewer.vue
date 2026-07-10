@@ -136,7 +136,7 @@ export default defineComponent({
       window.addEventListener('mouseup', this.endDrag)
     },
     onDrag(e) {
-      const dy = this._startY - e.clientY // drag up → taller
+      const dy = this._startY - e.clientY // drag up -> taller
       const max = Math.round(window.innerHeight * 0.5)
       this.height = Math.min(max, Math.max(this.minHeight, this._startH + dy))
     },

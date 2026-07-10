@@ -3,7 +3,7 @@
 # Post-process a Tauri-built AppImage: drop the bundled libwayland-* libraries so
 # the app uses the host's. Tauri/linuxdeploy bundles libwayland-client (against
 # the AppImage excludelist), and the old bundled copy conflicts with a modern
-# Wayland compositor / Mesa — WebKit then aborts with
+# Wayland compositor / Mesa - WebKit then aborts with
 #   "Could not create default EGL display: EGL_BAD_PARAMETER. Aborting..."
 # and renders a blank window. Using the system libwayland fixes it. libwayland is
 # present on every Wayland desktop, so this is safe; X11-only sessions are

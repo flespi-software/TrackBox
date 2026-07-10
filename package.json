@@ -1,7 +1,7 @@
 {
   "name": "trackbox",
-  "version": "1.1.2",
-  "description": "GPS tracker simulator for flespi — drive virtual devices along routes and feed them into flespi via device REST, HTTP or MQTT channels",
+  "version": "1.2.0",
+  "description": "GPS tracker simulator for flespi - drive virtual devices along routes and feed them into flespi via device REST, HTTP or MQTT channels",
   "productName": "TrackBox",
   "author": "Evgenij Spitsyn <spev@gurtam.team>",
   "license": "MIT",
@@ -26,6 +26,7 @@
   "dependencies": {
     "@quasar/extras": "^1.18.0",
     "@tauri-apps/api": "^2.11.0",
+    "@tauri-apps/plugin-dialog": "^2.7.1",
     "@tauri-apps/plugin-fs": "^2.5.1",
     "@tauri-apps/plugin-http": "^2.5.9",
     "@tauri-apps/plugin-process": "^2.3.1",

@@ -3,7 +3,7 @@
 // Each protocol is a self-contained module exporting a descriptor:
 //   { value, label, icon, needsLogin, native, defaults, fields, summary, send }
 //   - needsLogin: requires a flespi token (device REST, MQTT channel)
-//   - native:     requires raw TCP/UDP → Tauri desktop only (e.g. Wialon IPS,
+//   - native:     requires raw TCP/UDP -> Tauri desktop only (e.g. Wialon IPS,
 //                 Teltonika). Browser builds hide these.
 //   - fields:     declarative config rendered generically by SimulatorDialog
 //                 ({ key, type: text|number|toggle|btnToggle|select, label,

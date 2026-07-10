@@ -10,7 +10,7 @@
           <template v-if="isNew">
             Your flespi token and map API keys are saved on this device in an
             <b>encrypted vault</b> so you don't re-enter them every time.
-            <b>Choose a master password</b> to protect them — you'll need to enter it
+            <b>Choose a master password</b> to protect them - you'll need to enter it
             <b>each time you open the app</b> to unlock the vault.
             There's no recovery if you forget it. Prefer not to save secrets? Just
             <b>Skip</b>.
@@ -143,7 +143,7 @@ export default defineComponent({
         .dialog({
           title: 'Reset vault',
           message:
-            "There's no password recovery for an encrypted vault. Resetting deletes it — " +
+            "There's no password recovery for an encrypted vault. Resetting deletes it - " +
             'the saved token and API keys are lost and you set a new password. Continue?',
           cancel: true,
           persistent: true,
@@ -157,7 +157,7 @@ export default defineComponent({
             this.password = ''
             this.error = 'Vault reset. Set a new master password (restart the app if it hangs).'
           } catch {
-            this.error = 'Could not reset the vault — delete vault.hold manually and restart.'
+            this.error = 'Could not reset the vault - delete vault.hold manually and restart.'
           } finally {
             this.busy = false
           }

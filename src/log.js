@@ -2,8 +2,8 @@
  * Lightweight in-app log buffer for diagnostics.
  *
  * A reactive ring buffer of the most recent entries (capped at MAX). Anything in
- * the app can record an event — sends, errors, cloud sync, connection changes —
- * and the user can review/copy them from Settings → Diagnostics to figure out
+ * the app can record an event - sends, errors, cloud sync, connection changes -
+ * and the user can review/copy them from Settings -> Diagnostics to figure out
  * why something isn't working. Mirrored to the console in dev.
  *
  *   import { logInfo, logError } from 'src/log'
@@ -41,7 +41,7 @@ export function clearLogs() {
   logState.entries.splice(0)
 }
 
-/* Whole buffer as plain text — for the Copy button. */
+/* Whole buffer as plain text - for the Copy button. */
 export function logsToText() {
   return logState.entries
     .map(

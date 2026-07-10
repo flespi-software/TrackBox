@@ -3,7 +3,7 @@
     <q-card class="changelog-card">
       <q-card-section class="row items-center q-pb-none">
         <q-icon name="mdi-history" class="q-mr-sm" color="primary" />
-        <div class="text-subtitle1 text-bold">What’s new</div>
+        <div class="text-subtitle1 text-bold">What's new</div>
         <q-space />
         <q-btn icon="mdi-close" flat round dense v-close-popup />
       </q-card-section>
@@ -29,8 +29,8 @@
 import { defineComponent } from 'vue'
 import changelog from '../../CHANGELOG.md?raw'
 
-// Minimal parse of our own (trusted) changelog: '## x' → version, '### x' →
-// section, '- x' → item. Inline **bold**/`code` markers are stripped for display.
+// Minimal parse of our own (trusted) changelog: '## x' -> version, '### x' ->
+// section, '- x' -> item. Inline **bold**/`code` markers are stripped for display.
 function parseChangelog(md) {
   const versions = []
   let cur = null

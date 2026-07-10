@@ -1,5 +1,5 @@
-// A small demo loop (≈ central Vilnius) used by the "Load sample route" button.
-// No timestamps → plays back at the configured constant speed.
+// A small demo loop (~ central Vilnius) used by the "Load sample route" button.
+// No timestamps -> plays back at the configured constant speed.
 const coords = [
   [54.6872, 25.2797],
   [54.6885, 25.2835],

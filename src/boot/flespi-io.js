@@ -3,7 +3,7 @@ import { boot } from 'quasar/wrappers'
 import axios from 'axios'
 
 async function getRegion() {
-  // TrackBox always uses flespi.io — the global entry returns every region.
+  // TrackBox always uses flespi.io - the global entry returns every region.
   const api = await axios.get('https://flespi.io/auth/regions', {})
   const list = []
   let region = ''

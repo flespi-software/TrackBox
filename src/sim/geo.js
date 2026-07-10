@@ -50,9 +50,9 @@ export function boundsOf(points) {
 }
 
 // Vehicle dynamics for the simulated speed profile (rough but natural).
-const A_LATERAL = 2.5 // m/s² comfortable cornering acceleration
-const A_ACCEL = 1.2 // m/s² acceleration
-const A_DECEL = 2.2 // m/s² braking
+const A_LATERAL = 2.5 // m/s2 comfortable cornering acceleration
+const A_ACCEL = 1.2 // m/s2 acceleration
+const A_DECEL = 2.2 // m/s2 braking
 const V_FLOOR = 3 / 3.6 // never below ~3 km/h (m/s)
 // Replay stop auto-detection: a segment slower than this for at least this long
 // is treated as a real stop (doors may open) without altering the timeline.
@@ -62,7 +62,7 @@ const STOP_DETECT_SEC = 30
 /*
  * Per-vertex speed limit (m/s) from corner sharpness, then smoothed by an
  * acceleration/braking pass so the car slows *before* a turn and speeds up
- * *after* it — like a real driver. Capped at the cruise speed.
+ * *after* it - like a real driver. Capped at the cruise speed.
  */
 function simulateProfile(pts, segLen, cruiseMps) {
   const n = pts.length
@@ -71,7 +71,7 @@ function simulateProfile(pts, segLen, cruiseMps) {
     const b1 = bearing(pts[i - 1], pts[i])
     const b2 = bearing(pts[i], pts[i + 1])
     let dev = Math.abs(b2 - b1) % 360
-    if (dev > 180) dev = 360 - dev // 0..180° deflection at the vertex
+    if (dev > 180) dev = 360 - dev // 0..180deg deflection at the vertex
     const theta = (dev * Math.PI) / 180
     if (theta < 0.02) continue // basically straight
     // Estimate corner radius from the shorter adjacent half-segment.
@@ -97,10 +97,10 @@ function simulateProfile(pts, segLen, cruiseMps) {
  *
  * points: [{ lat, lon, timestamp?, speed?(km/h), altitude?, extra? }, ...]
  * opts: { speedKmh (cruise/constant), speedMode, loop }
- *   speedMode: 'auto'     — replay timestamps if present, else use per-point
+ *   speedMode: 'auto'     - replay timestamps if present, else use per-point
  *                           speeds if present, else simulate a natural profile
- *              'simulate' — always simulate a natural profile (slows on turns)
- *              'constant' — fixed speedKmh everywhere
+ *              'simulate' - always simulate a natural profile (slows on turns)
+ *              'constant' - fixed speedKmh everywhere
  *
  * Each segment carries a duration (seconds) plus vStart/vEnd (km/h), so a single
  * clock drives playback and the reported speed varies smoothly within a segment.
@@ -158,7 +158,7 @@ export function buildRoute(
   }
 
   // A stop: vehicle dwells at a point (speed 0) for `sec` seconds.
-  // kind: 'stop' (a real stop — doors may open) | 'light' (traffic light).
+  // kind: 'stop' (a real stop - doors may open) | 'light' (traffic light).
   const pushDwell = (p, sec, bearingDeg, kind) => {
     segments.push({
       a: p,
@@ -191,7 +191,7 @@ export function buildRoute(
       const b2 = bearing(pts[i], pts[i + 1])
       let dev = Math.abs(b2 - b1) % 360
       if (dev > 180) dev = 360 - dev
-      // ~45% of turns sharper than 45°, picked deterministically by index.
+      // ~45% of turns sharper than 45deg, picked deterministically by index.
       if (dev >= 45 && (i * 2654435761) % 100 < 45) {
         dwellAt[i] = { sec: 12, kind: 'light' }
       }
@@ -221,7 +221,7 @@ export function buildRoute(
     pushSegment(a, b, length, duration, vStart, vEnd)
     // Auto-detect stops in timestamped routes: the wait is already in the
     // timeline (long duration, ~0 speed), so flag the segment instead of adding
-    // a dwell — this drives doors without double-counting the pause.
+    // a dwell - this drives doors without double-counting the pause.
     if (source === 'replay' && vStart < STOP_DETECT_KMH && duration >= STOP_DETECT_SEC) {
       const seg = segments[segments.length - 1]
       seg.isStop = true

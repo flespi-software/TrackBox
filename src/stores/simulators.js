@@ -20,7 +20,7 @@ const STORAGE_KEY = 'trackbox-simulators'
 const STATE_KEY = 'trackbox-state' // last playback state (position/progress), per id
 const CLOUD_BASE = 'xflespifront/trackbox/simulators'
 
-// Simulators (with compressed routes) live in IndexedDB — localStorage's ~5 MB
+// Simulators (with compressed routes) live in IndexedDB - localStorage's ~5 MB
 // synchronous string store can't hold more than a handful of routes. The small,
 // frequently-written playback STATE_KEY stays in localStorage (sync, survives
 // the beforeunload handler where async IndexedDB writes wouldn't complete).
@@ -45,7 +45,7 @@ function serializeSim(s) {
 
 /* IndexedDB's structured clone can't serialize Vue's reactive proxies (source/
    transport/options are reactive store state), so round-trip to plain objects
-   before writing. The MQTT path is fine — it goes through JSON.stringify. */
+   before writing. The MQTT path is fine - it goes through JSON.stringify. */
 function plainSnapshot(simulators) {
   return JSON.parse(JSON.stringify(simulators.map(serializeSim)))
 }
@@ -53,14 +53,14 @@ function plainSnapshot(simulators) {
 /* Turn a transport/axios send failure into a reason the user can act on. */
 function describeSendError(e) {
   const reason = e?.response?.data?.errors?.[0]?.reason
-  if (reason) return reason // flespi rejected it — show its reason
+  if (reason) return reason // flespi rejected it - show its reason
   const status = e?.response?.status
   if (status) return `HTTP ${status}${e.response.statusText ? ' ' + e.response.statusText : ''}`
   const msg = e?.message || String(e)
-  // axios reports "Network Error" with no response — the request never reached
+  // axios reports "Network Error" with no response - the request never reached
   // the server. Spell out the likely causes since the bare message is opaque.
   if (/network error/i.test(msg)) {
-    return 'Network error — no response from the channel (offline, host/port unreachable, CORS, or HTTP blocked on an HTTPS page). The desktop app avoids browser CORS/mixed-content limits.'
+    return 'Network error - no response from the channel (offline, host/port unreachable, CORS, or HTTP blocked on an HTTPS page). The desktop app avoids browser CORS/mixed-content limits.'
   }
   return msg
 }
@@ -100,12 +100,12 @@ function defaultOptions() {
     // 'auto' = use route data (timestamps/speed) if present, else simulate;
     // 'simulate' = natural profile that slows on turns; 'constant' = fixed speed.
     speedMode: 'auto',
-    // Extra report when heading changes by this many degrees (0 = off) — gives
+    // Extra report when heading changes by this many degrees (0 = off) - gives
     // denser points through turns/interchanges.
     turnDeg: 20,
     satellites: 12,
     // Vehicle-state parameters injected into every message (ignition, doors,
-    // seatbelt, pedals, …): { 'engine.ignition.status': true, ... }
+    // seatbelt, pedals, ...): { 'engine.ignition.status': true, ... }
     vehicleParams: {},
     // Per-parameter automatic control: { 'headlight.status': true, ... }. A key
     // flagged true is derived from motion/stops by the engine instead of the
@@ -126,7 +126,7 @@ function migrateOptions(o = {}) {
     opts.speedMode = o.useTimestamps ? 'auto' : 'constant'
   }
   delete opts.useTimestamps
-  // Drop the old global auto toggles — replaced by per-parameter autoParams.
+  // Drop the old global auto toggles - replaced by per-parameter autoParams.
   delete opts.autoSim
   delete opts.autoDoors
   return opts
@@ -332,7 +332,7 @@ export const useSimulatorsStore = defineStore('simulators', {
         },
         onSend: async (messages) => {
           // The built message reflects the current simulated state (incl.
-          // auto-derived doors/telemetry) — surface it so cards show real values.
+          // auto-derived doors/telemetry) - surface it so cards show real values.
           if (messages.length) sim.runtime.lastSent = messages[messages.length - 1]
           const prevError = sim.runtime.lastError
           try {
@@ -365,7 +365,7 @@ export const useSimulatorsStore = defineStore('simulators', {
       // Block transports that require a flespi login when not logged in.
       if (this.transportNeedsLogin(sim.transport.type) && !useAuthStore().token) {
         sim.runtime.lastError = 'Login required for this transport'
-        logWarn('sim', `${sim.name}: start blocked — login required for ${sim.transport.type}`)
+        logWarn('sim', `${sim.name}: start blocked - login required for ${sim.transport.type}`)
         return
       }
       const resuming = sim.runtime.status === 'paused'
@@ -457,7 +457,7 @@ export const useSimulatorsStore = defineStore('simulators', {
       this.persist()
     },
 
-    /* Live speed control (km/h) for constant-speed routes — rebuilds the route
+    /* Live speed control (km/h) for constant-speed routes - rebuilds the route
        in place, preserving current progress. */
     setSpeed(id, kmh) {
       const sim = this.byId(id)
@@ -497,7 +497,7 @@ export const useSimulatorsStore = defineStore('simulators', {
       this.cloudPublish(sim)
     },
 
-    /* Live vehicle-state control (ignition, doors, seatbelt, pedals, …). */
+    /* Live vehicle-state control (ignition, doors, seatbelt, pedals, ...). */
     setVehicleParam(id, key, value) {
       const sim = this.byId(id)
       if (!sim) return
@@ -525,7 +525,7 @@ export const useSimulatorsStore = defineStore('simulators', {
       this.cloudPublish(sim)
     },
 
-    /* Live manual override from the card — wins over auto for that key. Held in
+    /* Live manual override from the card - wins over auto for that key. Held in
        runtime only (not persisted); cleared on stop. */
     setManualOverride(id, key, value) {
       const sim = this.byId(id)
@@ -589,7 +589,7 @@ export const useSimulatorsStore = defineStore('simulators', {
       logInfo('cloud', `${sim.name}: sync ${on ? 'enabled' : 'disabled'}`)
     },
 
-    /* Subscribe to the cloud topic — retained messages load existing sims.
+    /* Subscribe to the cloud topic - retained messages load existing sims.
        Always on while the broker is connected so cloud-backed flows get pulled in.
        Scoped to our account: the topic is a shared namespace, so we filter by the
        token's cid (flespi stamps each message's publisher cid in userProperties). */
@@ -601,7 +601,7 @@ export const useSimulatorsStore = defineStore('simulators', {
       try {
         const cid = await auth.ensureCid()
         const sock = this.socket()
-        // Connection may have dropped, or we couldn't resolve the account — retry later.
+        // Connection may have dropped, or we couldn't resolve the account - retry later.
         if (!cid || !sock || !auth.socketConnected) {
           cloudSubscribed = false
           return
@@ -678,7 +678,7 @@ export const useSimulatorsStore = defineStore('simulators', {
     },
 
     /* The flow's cloud copy was removed (here or on another device). Keep it
-       locally — explicit removal is the card's delete button — just stop syncing. */
+       locally - explicit removal is the card's delete button - just stop syncing. */
     applyCloudDelete(id) {
       const sim = this.byId(id)
       if (!sim || !sim.cloudSync) return

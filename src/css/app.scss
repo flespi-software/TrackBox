@@ -3,7 +3,7 @@
 // ---- App frame (desktop / installed PWA) --------------------------------
 // Rounded corners + a thin theme-aware ring + shadow so the (frameless) window
 // reads as a polished, self-contained app. Applied only when .app-framed is set
-// (Tauri or standalone PWA) — never in a normal browser tab. Transparency (for
+// (Tauri or standalone PWA) - never in a normal browser tab. Transparency (for
 // the see-through rounded corners) needs a working EGL path; the AppImage build
 // strips bundled libwayland so EGL works on modern GPUs. See [[devsimbox-tauri]].
 .app-framed #q-app {
@@ -48,8 +48,8 @@
 }
 
 // Opaque map underlay. The desktop window is transparent (for the rounded
-// corners), so without a solid backing the gaps between still-loading tiles —
-// and the strip exposed while resizing — show the desktop through the map.
+// corners), so without a solid backing the gaps between still-loading tiles -
+// and the strip exposed while resizing - show the desktop through the map.
 // A theme-matched basemap colour keeps the map area solid during redraws.
 .leaflet-container {
   background: #e8eaed;
@@ -111,18 +111,18 @@
   }
 
   // ---- Dark-mode readability ----
-  // Quasar's negative (#C10015) is too dark on a dark background — use a lighter
+  // Quasar's negative (#C10015) is too dark on a dark background - use a lighter
   // red for error TEXT (backgrounds/buttons keep the brand color).
   .text-negative {
     color: #ff6b6b !important;
   }
-  // Form-field error messages / labels are red by default → lighten them too.
+  // Form-field error messages / labels are red by default -> lighten them too.
   .q-field--error .q-field__messages,
   .q-field--error .q-field__label,
   .q-field--error .q-field__bottom {
     color: #ff6b6b !important;
   }
-  // Captions: grey-7 (#616161) is low-contrast on dark → nudge lighter.
+  // Captions: grey-7 (#616161) is low-contrast on dark -> nudge lighter.
   .text-grey-7 {
     color: #9e9e9e !important;
   }

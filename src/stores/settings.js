@@ -120,7 +120,7 @@ export const useSettingsStore = defineStore('settings', {
       this.persistPrefs()
     },
 
-    /* On app theme change, flip a CARTO basemap to the matching variant — but only
+    /* On app theme change, flip a CARTO basemap to the matching variant - but only
        when a CARTO layer is active and the target variant is still enabled. */
     syncCartoBasemap(dark) {
       if (!isCarto(this.mapStyle)) return

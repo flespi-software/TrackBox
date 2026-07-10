@@ -1,8 +1,8 @@
-// OsmAnd protocol — HTTPS GET to the channel URI with query params.
+// OsmAnd protocol - HTTPS GET to the channel URI with query params.
 // flespi expects: speed in km/h, timestamp in seconds, altitude in meters,
 // bearing in degrees. No login needed. Browser-capable where the channel host
 // allows it (same CORS/mixed-content caveat as the HTTP channel); always works
-// under Tauri via native HTTP. Carries position only — OsmAnd has no fields for
+// under Tauri via native HTTP. Carries position only - OsmAnd has no fields for
 // doors/pedals/etc. (use device/HTTP/MQTT transports for rich params).
 
 import { httpGet } from '../../../platform'

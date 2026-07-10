@@ -1,4 +1,4 @@
-// flespi HTTP-protocol channel — POST a JSON message array to gw.flespi.io:<port>.
+// flespi HTTP-protocol channel - POST a JSON message array to gw.flespi.io:<port>.
 // No login needed. Under Tauri uses native HTTP (bypasses CORS/mixed-content).
 
 import { httpPostJson } from '../../../platform'

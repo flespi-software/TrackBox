@@ -51,6 +51,6 @@ fi
 echo
 echo "==> Done. AppImage(s):"
 ls -1sh "$OUT_DIR"/*.AppImage 2>/dev/null || {
-  echo "  (none found in $OUT_DIR — check the build log above)" >&2
+  echo "  (none found in $OUT_DIR - check the build log above)" >&2
   exit 1
 }

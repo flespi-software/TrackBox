@@ -1,6 +1,6 @@
 [package]
 name = "trackbox"
-version = "1.1.2"
+version = "1.2.0"
 description = "GPS tracker simulator for flespi"
 authors = ["Evgenij Spitsyn <spev@gurtam.team>"]
 license = ""
@@ -27,6 +27,7 @@ tauri-plugin-http = "2"
 tauri-plugin-shell = "2"
 tauri-plugin-stronghold = "2"
 tauri-plugin-fs = "2"
+tauri-plugin-dialog = "2"
 tauri-plugin-updater = "2"
 tauri-plugin-process = "2"
 rust-argon2 = "2"
@@ -36,6 +37,6 @@ getrandom = "0.2" # CSPRNG for the per-install Stronghold vault salt
 tauri-plugin-single-instance = "2"
 
 # Optimize dependencies even in dev so argon2 / Stronghold key derivation isn't
-# painfully slow in `tauri dev` (debug) — app code stays unoptimized/debuggable.
+# painfully slow in `tauri dev` (debug) - app code stays unoptimized/debuggable.
 [profile.dev.package."*"]
 opt-level = 2

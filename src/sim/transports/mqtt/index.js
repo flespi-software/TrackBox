@@ -1,4 +1,4 @@
-// flespi MQTT-protocol channel — publish to the channel's subscribe topic over
+// flespi MQTT-protocol channel - publish to the channel's subscribe topic over
 // the flespi MQTT broker (the already-connected session). Needs login.
 
 import icon from './icon.svg?raw'

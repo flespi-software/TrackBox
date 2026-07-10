@@ -60,7 +60,7 @@
             <div v-if="!simulators.length" class="text-center text-grey-6 q-pa-lg">
               <q-icon name="mdi-map-marker-radius-outline" size="48px" class="q-mb-sm" />
               <div>No simulators yet.</div>
-              <div class="text-caption">Click “Add simulator” and upload a route.</div>
+              <div class="text-caption">Click "Add simulator" and upload a route.</div>
             </div>
             <SimulatorCard
               v-for="sim in simulators"
@@ -103,7 +103,7 @@ export default defineComponent({
     return {
       dialog: false,
       editId: null,
-      // QScrollArea renders its own thumb — neutral grey works in both themes.
+      // QScrollArea renders its own thumb - neutral grey works in both themes.
       thumbStyle: {
         right: '2px',
         borderRadius: '8px',
@@ -120,7 +120,7 @@ export default defineComponent({
     }
   },
   mounted() {
-    // Already connected (e.g. session-restored token) — pull cloud-backed sims now.
+    // Already connected (e.g. session-restored token) - pull cloud-backed sims now.
     if (this.socketConnected) this.store.subscribeCloud()
   },
   watch: {
@@ -129,7 +129,7 @@ export default defineComponent({
       else this.store.markCloudDisconnected()
     },
     mobile() {
-      // Layout changed (orientation / resize) — let Leaflet remeasure.
+      // Layout changed (orientation / resize) - let Leaflet remeasure.
       this.$nextTick(() => this.$refs.map && this.$refs.map.invalidate())
     },
   },
@@ -199,7 +199,7 @@ export default defineComponent({
         .dialog({
           title: 'Stop all',
           message:
-            `Stop ${active} active simulator${active > 1 ? 's' : ''}? This resets them — ` +
+            `Stop ${active} active simulator${active > 1 ? 's' : ''}? This resets them - ` +
             `playback restarts from the beginning. Use Pause all to keep positions.`,
           cancel: true,
           ok: { label: 'Stop all', color: 'negative' },
@@ -227,7 +227,7 @@ export default defineComponent({
   min-height: 0;
   display: flex;
 }
-/* Desktop: list on the left, map on the right (map is DOM-first → row-reverse). */
+/* Desktop: list on the left, map on the right (map is DOM-first -> row-reverse). */
 .sim-body.is-desktop {
   flex-direction: row-reverse;
 }

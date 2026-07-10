@@ -29,7 +29,7 @@
       </q-card-section>
       <q-card-section>
         <div class="text-caption text-grey-7 q-mb-sm">
-          Paste a flespi token. Create one in the flespi panel → Tokens.
+          Paste a flespi token. Create one in the flespi panel -> Tokens.
         </div>
         <q-input
           v-model="tokenInput"
@@ -41,7 +41,7 @@
           @keyup.enter="applyToken"
         />
         <div v-if="applying" class="row items-center text-caption text-primary q-mt-sm">
-          <q-spinner size="16px" class="q-mr-xs" /> Applying token and connecting…
+          <q-spinner size="16px" class="q-mr-xs" /> Applying token and connecting...
         </div>
         <q-btn
           flat
@@ -98,7 +98,7 @@ export default defineComponent({
       this.clearToken()
     },
     onLoginClick() {
-      // Desktop (Tauri) can't receive the OAuth popup's postMessage → use a
+      // Desktop (Tauri) can't receive the OAuth popup's postMessage -> use a
       // token paste dialog. Web/PWA keeps the normal login popup.
       if (isTauri) {
         this.tokenDialog = true

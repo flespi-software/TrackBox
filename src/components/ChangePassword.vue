@@ -80,7 +80,7 @@ export default defineComponent({
       this.busy = true
       this.error = ''
       try {
-        // A stuck native call shouldn't freeze the UI — race against a timeout.
+        // A stuck native call shouldn't freeze the UI - race against a timeout.
         await Promise.race([
           secureStore.changePassword(this.pwd),
           new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 30000)),
@@ -92,10 +92,10 @@ export default defineComponent({
         if (m === 'timeout') {
           this.error = 'Timed out. Try again; if it persists, restart the app.'
         } else if (m === 'rekey-failed-unsafe') {
-          this.error = 'Re-encryption was interrupted — restart the app (use "Forgot password?" if it stays locked).'
+          this.error = 'Re-encryption was interrupted - restart the app (use "Forgot password?" if it stays locked).'
         } else {
           // rekey-failed-safe and anything else: the live vault is untouched.
-          this.error = 'Could not change the password — the vault is unchanged.'
+          this.error = 'Could not change the password - the vault is unchanged.'
         }
       } finally {
         this.busy = false

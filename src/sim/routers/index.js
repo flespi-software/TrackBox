@@ -4,7 +4,7 @@
 //   { value, label, needsKey, keyUrl?, profiles: [{value,label}], fetchRoute() }
 //
 // To DISABLE a provider, just remove (or comment out) its line in PROVIDERS
-// below — nothing else needs to change. To ADD one, drop a new module in this
+// below - nothing else needs to change. To ADD one, drop a new module in this
 // folder and add it to the list.
 
 import osrm from './osrm'

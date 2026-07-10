@@ -13,7 +13,7 @@
           {{ product }} v{{ version }} is built with these open-source libraries. The
           desktop runtime is <b>Tauri</b> and its plugins (Apache-2.0 / MIT,
           <a href="https://tauri.app" @click.prevent="openExt('https://tauri.app')">tauri.app</a>);
-          bundled Rust crates are permissive (MIT / Apache-2.0). Map data ©
+          bundled Rust crates are permissive (MIT / Apache-2.0). Map data &copy;
           <a href="https://www.openstreetmap.org/copyright" @click.prevent="openExt('https://www.openstreetmap.org/copyright')">OpenStreetMap</a>
           contributors, tiles by
           <a href="https://carto.com/attributions" @click.prevent="openExt('https://carto.com/attributions')">CARTO</a>.
@@ -24,7 +24,7 @@
           outlined
           clearable
           class="q-mt-sm"
-          placeholder="Filter packages…"
+          placeholder="Filter packages..."
           prepend-icon="mdi-magnify"
         >
           <template #prepend><q-icon name="mdi-magnify" /></template>
@@ -38,15 +38,15 @@
           dense
           switch-toggle-side
           icon="mdi-scale-balance"
-          :label="`${product} — MIT License`"
-          :caption="`© ${year} ${holder}`"
+          :label="`${product} - MIT License`"
+          :caption="`\u00A9 ${year} ${holder}`"
         >
           <pre class="license-text">{{ mitText }}</pre>
         </q-expansion-item>
         <q-separator spaced />
 
         <div v-if="loading" class="row items-center justify-center q-pa-lg text-grey-6">
-          <q-spinner size="22px" class="q-mr-sm" /> Loading…
+          <q-spinner size="22px" class="q-mr-sm" /> Loading...
         </div>
         <div v-else>
           <div class="text-caption text-grey-6 q-mb-xs">{{ shown.length }} packages</div>
@@ -56,7 +56,7 @@
             dense
             switch-toggle-side
             :label="p.name"
-            :caption="`${p.version} · ${p.license}`"
+            :caption="`${p.version} - ${p.license}`"
           >
             <div class="q-px-md q-pb-sm">
               <a

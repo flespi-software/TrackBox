@@ -1,4 +1,4 @@
-// Stadia Maps — hosted Valhalla. Free API key. Implemented per docs (untested without key).
+// Stadia Maps - hosted Valhalla. Free API key. Implemented per docs (untested without key).
 import { valhallaRoute } from './util'
 
 export default {

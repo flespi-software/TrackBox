@@ -44,13 +44,14 @@ pub fn run() {
     .plugin(tauri_plugin_http::init())
     .plugin(tauri_plugin_shell::init())
     .plugin(tauri_plugin_fs::init())
+    .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_process::init())
     .setup(|app| {
       use tauri::Manager;
 
       // Encrypted secret vault. Derive the snapshot key from the master password
       // with Argon2id over a per-install random salt. Stored in the LOCAL (non-
-      // roaming) app data dir — the canonical spot for secrets/machine-bound state
+      // roaming) app data dir - the canonical spot for secrets/machine-bound state
       // (~/.local/share on Linux, Application Support on macOS, %LOCALAPPDATA% on
       // Windows). Must match the vault dir in src/secureStore.js (appLocalDataDir).
       let salt = {

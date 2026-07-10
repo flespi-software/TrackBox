@@ -136,14 +136,14 @@
 
         </template>
 
-        <!-- Route stats (map / file) — kept above the stops list. -->
+        <!-- Route stats (map / file) - kept above the stops list. -->
         <div class="row items-center q-mt-xs">
           <div v-if="parsed" class="text-caption text-positive">
-            {{ parsed.points.length }} points · {{ distanceKm }} km
-            <span v-if="parsed.hasTimes"> · has timestamps</span>
+            {{ parsed.points.length }} points &middot; {{ distanceKm }} km
+            <span v-if="parsed.hasTimes"> &middot; has timestamps</span>
           </div>
           <div v-else-if="routeMissing" class="text-caption text-negative">
-            <q-icon name="mdi-alert-circle-outline" size="14px" /> Add a route to continue —
+            <q-icon name="mdi-alert-circle-outline" size="14px" /> Add a route to continue -
             upload a file or build one by roads.
           </div>
         </div>
@@ -237,7 +237,7 @@
           </q-item-section>
           <q-item-section>
             <q-item-label>
-              Traffic-light stops near turns ·
+              Traffic-light stops near turns &middot;
               <span :class="form.options.trafficLights ? 'text-primary' : 'text-grey-6'">
                 {{ form.options.trafficLights ? 'On' : 'Off' }}
               </span>
@@ -314,7 +314,7 @@
           class="bg-amber-2 text-amber-10 rounded-borders q-mb-sm"
         >
           <template #avatar><q-icon name="mdi-lock-alert" color="amber-9" /></template>
-          You're using the web app (HTTPS), so it can't POST to a plain-HTTP channel —
+          You're using the web app (HTTPS), so it can't POST to a plain-HTTP channel -
           the browser blocks mixed content. Enable <b>SSL</b> on the flespi channel and
           use its <code>https://</code> URL. (The desktop app has no such restriction.)
         </q-banner>
@@ -350,7 +350,7 @@
             class="col-12 col-sm-6"
             v-model.number="form.options.timeMultiplier"
             type="number"
-            label="Playback speed ×"
+            label="Playback speed &times;"
             dense
             outlined
           />
@@ -374,7 +374,7 @@
             class="col-12 col-sm-6"
             v-model.number="form.options.turnDeg"
             type="number"
-            label="Report on turn (°)"
+            label="Report on turn (&deg;)"
             dense
             outlined
             hint="Extra message when heading changes this much (0 = off)"
@@ -440,8 +440,8 @@
                 >
                   <q-tooltip>
                     {{ isAuto(key)
-                      ? 'Auto: derived from motion/stops — click to set manually'
-                      : 'Manual value — click to auto-derive from motion/stops' }}
+                      ? 'Auto: derived from motion/stops - click to set manually'
+                      : 'Manual value - click to auto-derive from motion/stops' }}
                   </q-tooltip>
                 </q-btn>
               </div>
@@ -568,7 +568,7 @@ export default defineComponent({
       format: 'auto',
       parsed: null,
       parseError: '',
-      validated: false, // set on a Save attempt → reveals required-field errors
+      validated: false, // set on a Save attempt -> reveals required-field errors
       formatOptions: FORMATS,
       // road-route builder
       routeMode: 'build', // build | file
@@ -597,7 +597,7 @@ export default defineComponent({
       )
     },
     // A browser build served over HTTPS can't POST to a plain-HTTP channel
-    // (mixed-content block). The Tauri desktop build uses native HTTP — no limit.
+    // (mixed-content block). The Tauri desktop build uses native HTTP - no limit.
     httpMixedContentWarn() {
       return (
         this.form.transport.type === 'http' &&
@@ -634,7 +634,7 @@ export default defineComponent({
         const blocked = r.needsKey && !this.settings.keyFor(r.value)
         return {
           value: r.value,
-          label: blocked ? `${r.label} — no key` : r.label,
+          label: blocked ? `${r.label} - no key` : r.label,
           disable: blocked,
         }
       })
@@ -662,8 +662,8 @@ export default defineComponent({
     },
     speedModeOptions() {
       return [
-        { label: 'Auto — use route data if present', value: 'auto' },
-        { label: 'Simulate — natural, slows on turns', value: 'simulate' },
+        { label: 'Auto - use route data if present', value: 'auto' },
+        { label: 'Simulate - natural, slows on turns', value: 'simulate' },
         { label: 'Constant speed', value: 'constant' },
       ]
     },
@@ -675,12 +675,12 @@ export default defineComponent({
     },
     speedModeHint() {
       const mode = this.form.options.speedMode
-      if (mode === 'simulate') return 'Realistic profile — brakes for corners, accelerates after'
+      if (mode === 'simulate') return 'Realistic profile - brakes for corners, accelerates after'
       if (mode === 'constant') return 'Fixed speed for the whole route'
       // auto
       if (this.parsed && this.parsed.hasTimes) return 'Following route timestamps'
       if (this.parsed && this.parsed.hasSpeeds) return 'Following per-point speed from the route'
-      return 'No speed in route — simulating natural driving'
+      return 'No speed in route - simulating natural driving'
     },
     extraError() {
       const t = (this.form.options.extraParamsText || '').trim()
@@ -806,9 +806,40 @@ export default defineComponent({
       try {
         this.parsed = parseRoute(this._lastName || '', this._lastText, this.format)
         this.parseError = ''
+        if (this.parsed.config) this.applyImportedConfig(this.parsed.config)
       } catch (e) {
         this.parseError = e.message
         this.parsed = null
+      }
+    },
+    /* Restore settings saved in a TrackBox GPX export. Merges over defaults so
+       fields from newer/older exports degrade gracefully (forward-compatible);
+       keeps the parsed <trk> geometry so the route stays editable, like Edit. */
+    applyImportedConfig(cfg) {
+      if (cfg.name && !this.form.name) this.form.name = cfg.name
+      const o = cfg.options
+      if (o && typeof o === 'object') {
+        this.form.options = {
+          ...blankForm().options,
+          ...this.form.options,
+          ...o,
+          vehicleParams: { ...(o.vehicleParams || {}) },
+          autoParams: { ...(o.autoParams || {}) },
+          extraParamsText: o.extraParams
+            ? JSON.stringify(o.extraParams, null, 2)
+            : this.form.options.extraParamsText || '',
+        }
+      }
+      const build = cfg.source && cfg.source.build
+      if (build && Array.isArray(build.waypoints) && build.waypoints.length) {
+        this.routeMode = 'build'
+        this.routerProvider = build.provider || this.routerProvider
+        this.routerProfile = build.profile || defaultProfile(this.routerProvider)
+        this.waypoints = build.waypoints.map((w) => ({
+          lat: w.lat,
+          lon: w.lon,
+          sec: Math.max(0, Number(w.sec) || 0),
+        }))
       }
     },
     loadSample() {
@@ -1005,7 +1036,7 @@ export default defineComponent({
             // drop the first coord of the return leg (duplicates the current end)
             points = points.concat(back.points.slice(1))
           } catch {
-            // Return leg failed — keep the open route; the engine will straight-close it.
+            // Return leg failed - keep the open route; the engine will straight-close it.
             this.buildError = 'Return leg not routed; loop will close with a straight line'
           }
         }
@@ -1032,7 +1063,7 @@ export default defineComponent({
       if (!this.parsed) {
         this.$q.notify({
           type: 'warning',
-          message: 'Add a route first — upload a file or build one by roads.',
+          message: 'Add a route first - upload a file or build one by roads.',
         })
         return
       }
@@ -1051,7 +1082,7 @@ export default defineComponent({
           format: this.parsed.format,
           fileName:
             this.routeMode === 'build'
-              ? `roads · ${this.routerProvider}/${this.routerProfile}`
+              ? `roads - ${this.routerProvider}/${this.routerProfile}`
               : this._lastName || '',
           points: this.parsed.points,
           hasTimes: this.parsed.hasTimes,

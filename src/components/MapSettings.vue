@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="text-caption text-grey-6 q-mb-sm">
-      Basemaps offered in the map’s layer switcher. Stored locally in this browser.
+      Basemaps offered in the map's layer switcher. Stored locally in this browser.
     </div>
 
     <div v-for="b in basemaps" :key="b.value" class="q-mb-xs">
@@ -16,12 +16,12 @@
     <q-separator class="q-my-md" />
 
     <div class="text-caption text-grey-6 q-mb-sm">
-      Custom tile layer — adds a “Custom” option when set.
+      Custom tile layer - adds a "Custom" option when set.
     </div>
     <q-input
       v-model="url"
       label="Tile URL"
-      hint="Template with {z}/{x}/{y} — e.g. https://tile.example.com/{z}/{x}/{y}.png"
+      hint="Template with {z}/{x}/{y} - e.g. https://tile.example.com/{z}/{x}/{y}.png"
       :rules="[validate]"
       reactive-rules
       lazy-rules

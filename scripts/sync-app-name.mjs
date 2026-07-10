@@ -6,7 +6,7 @@
 // replacement (no reformatting) and only writes when the value actually changes,
 // so it's a no-op in normal dev/build. Wired into the dev/build commands.
 //
-// To rename the app: edit "productName" in package.json — that's the only place.
+// To rename the app: edit "productName" in package.json - that's the only place.
 import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
@@ -20,7 +20,7 @@ function stamp(file, patterns) {
   for (const re of patterns) out = out.replace(re, (_m, prefix) => prefix + JSON.stringify(name))
   if (out !== orig) {
     writeFileSync(path, out)
-    console.log(`[sync-app-name] ${file} → ${name}`)
+    console.log(`[sync-app-name] ${file} -> ${name}`)
   }
 }
 

@@ -8,7 +8,7 @@
 import { sampleRoute } from './geo'
 import { subscribeTick } from './clock'
 
-/* Smallest angle between two headings, 0..180°. */
+/* Smallest angle between two headings, 0..180deg. */
 function headingDelta(a, b) {
   const d = Math.abs(a - b) % 360
   return d > 180 ? 360 - d : d
@@ -16,7 +16,7 @@ function headingDelta(a, b) {
 
 export class SimEngine {
   // Source-message fields that flespi assigns server-side (or that the transport
-  // layer owns) — never forwarded from a replayed file.
+  // layer owns) - never forwarded from a replayed file.
   static SOURCE_SKIP = new Set([
     'server.timestamp',
     'channel.id',
@@ -171,7 +171,7 @@ export class SimEngine {
     return true
   }
 
-  /* Send one message right now (off the normal cadence) — used when the user
+  /* Send one message right now (off the normal cadence) - used when the user
      changes a live value (e.g. opens a door) so it isn't held back until the
      next scheduled send. No-op when not running; doesn't disturb playback. */
   emitNow() {
@@ -186,10 +186,10 @@ export class SimEngine {
     const sats = this.options.satellites
     const msg = {}
     // 0) Every parameter carried by the source message (flespi-JSON replay), so
-    //    full telemetry from the file (CAN, doors, fuel, …) is forwarded, not
+    //    full telemetry from the file (CAN, doors, fuel, ...) is forwarded, not
     //    just the position. Simulated geo/time below overrides the source's own.
     if (s.extra && typeof s.extra === 'object') this._mergeSource(msg, s.extra)
-    // 1) Simulated position/time (authoritative — the device is "live" now).
+    // 1) Simulated position/time (authoritative - the device is "live" now).
     msg.timestamp = Date.now() / 1000
     msg['position.latitude'] = round(s.lat, 6)
     msg['position.longitude'] = round(s.lon, 6)
@@ -211,7 +211,7 @@ export class SimEngine {
         if (autoParams[key] && key in derived) msg[key] = derived[key]
       }
     }
-    // 4) Live manual overrides (card chip clicks) win over auto — the user can
+    // 4) Live manual overrides (card chip clicks) win over auto - the user can
     //    take over any parameter on the fly, even an automatic one.
     if (this.options.manualOverrides && typeof this.options.manualOverrides === 'object') {
       Object.assign(msg, this.options.manualOverrides)
@@ -268,7 +268,7 @@ export class SimEngine {
       'headlight.status': moving,
       'can.seatbelt.status': moving,
     }
-    // Pedals — acceleration wins over the standstill rule so pulling away from a
+    // Pedals - acceleration wins over the standstill rule so pulling away from a
     // stop shows the accelerator, never the brake, even while speed is still < 1 km/h.
     if (accel > 0.6) {
       p['can.accelerator.pedal.position'] = r(clamp(18 + accel * 7, 0, 100), 0)
@@ -292,8 +292,8 @@ export class SimEngine {
   }
 
   /* Door states derived from motion. While driving, all doors are closed. At a
-     real stop (not a traffic light) a deterministic, varied subset opens — the
-     driver door always, plus 0–2 others (by segment index, so it's reproducible
+     real stop (not a traffic light) a deterministic, varied subset opens - the
+     driver door always, plus 0-2 others (by segment index, so it's reproducible
      and differs per stop). Returns every door key so an automatic door also
      gets closed again after the stop. */
   _deriveDoors(s) {

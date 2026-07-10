@@ -4,8 +4,8 @@
  * The bulk of a simulator is its `source.points` polyline. Stored as an array of
  * { lat, lon, ... } objects it dwarfs everything else and quickly fills the old
  * 5 MB localStorage. Here we encode the geometry as a Google "encoded polyline"
- * (precision 1e6 ≈ 0.1 m) and carry the optional per-point channels (timestamp /
- * speed / altitude) as delta- or plain arrays — typically a 5–10× reduction.
+ * (precision 1e6 ~ 0.1 m) and carry the optional per-point channels (timestamp /
+ * speed / altitude) as delta- or plain arrays - typically a 5-10x reduction.
  *
  * Points that carry a raw passthrough message (`extra`, from flespi-json replay)
  * can't be polyline-compressed without dropping that payload, so those sources are
@@ -100,14 +100,14 @@ function meta(source) {
 export function encodeSource(source) {
   if (!source) return source
   const points = source.points || []
-  // No geometry to compress, or points carry passthrough payloads — keep verbatim.
+  // No geometry to compress, or points carry passthrough payloads - keep verbatim.
   if (!points.length || points.some((p) => p && p.extra)) {
     return { ...meta(source), points }
   }
   const geo = { poly: encodePolyline(points) }
   // Channels are all-or-nothing: only stored when every point has the value
   // (matches how hasTimes/hasSpeeds are derived). Timestamps delta-encode well;
-  // speed keeps 0.1 km/h, altitude whole metres — both beyond what playback needs.
+  // speed keeps 0.1 km/h, altitude whole metres - both beyond what playback needs.
   if (allFinite(points, 'timestamp')) geo.t = deltaEncode(points.map((p) => p.timestamp))
   if (allFinite(points, 'speed')) geo.s = points.map((p) => Math.round(p.speed * 10) / 10)
   if (allFinite(points, 'altitude')) geo.a = points.map((p) => Math.round(p.altitude))

@@ -11,14 +11,14 @@
  * new namespace simply by calling appStore('my-feature').
  *
  *   const kv = appStore('my-feature')
- *   await kv.setItem('key', anyValue)   // value may be an object/array/Blob/…
+ *   await kv.setItem('key', anyValue)   // value may be an object/array/Blob/...
  *   const v = await kv.getItem('key')   // null when absent
  *   await kv.removeItem('key')
  *   await kv.keys()                     // string[]
  *   await kv.iterate((value, key) => { ... })
  *   await kv.clear()
  *
- * The returned object is a localforage instance — see its docs for the full API.
+ * The returned object is a localforage instance - see its docs for the full API.
  */
 
 import localforage from 'localforage'

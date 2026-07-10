@@ -77,4 +77,4 @@ while (queue.length) {
 
 out.sort((a, b) => a.name.localeCompare(b.name))
 writeFileSync(join(root, 'src/third-party-licenses.json'), JSON.stringify(out) + '\n')
-console.log(`[gen-licenses] ${out.length} packages → src/third-party-licenses.json`)
+console.log(`[gen-licenses] ${out.length} packages -> src/third-party-licenses.json`)

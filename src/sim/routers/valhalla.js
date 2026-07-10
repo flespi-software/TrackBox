@@ -1,4 +1,4 @@
-// Valhalla — FOSSGIS public instance. No API key. Verified live (CORS *).
+// Valhalla - FOSSGIS public instance. No API key. Verified live (CORS *).
 import { valhallaRoute } from './util'
 
 export default {

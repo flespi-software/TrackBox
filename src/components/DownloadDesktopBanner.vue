@@ -7,7 +7,7 @@
     <template #avatar>
       <q-icon name="mdi-desktop-classic" :color="accentColor" />
     </template>
-    Get the desktop app for {{ osLabel }} — native flespi HTTP channel, secure
+    Get the desktop app for {{ osLabel }} - native flespi HTTP channel, secure
     vault and auto-updates.
     <template #action>
       <q-btn
@@ -40,7 +40,7 @@ export default defineComponent({
   setup() {
     const $q = useQuasar()
 
-    // Installed PWA users already "have the app" — skip them.
+    // Installed PWA users already "have the app" - skip them.
     const standalone =
       typeof window !== 'undefined' &&
       window.matchMedia &&

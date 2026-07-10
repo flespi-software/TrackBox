@@ -13,7 +13,7 @@
           <div class="col">
             <div class="text-body2">{{ token ? 'Logged in' : 'Not logged in' }}</div>
             <div v-if="token" class="text-caption text-grey-6">
-              MQTT {{ socketConnected ? 'connected' : 'connecting…' }}
+              MQTT {{ socketConnected ? 'connected' : 'connecting...' }}
             </div>
           </div>
           <q-icon
@@ -22,7 +22,7 @@
             :color="socketConnected ? 'positive' : 'orange'"
             size="sm"
           >
-            <q-tooltip>MQTT {{ socketConnected ? 'connected' : 'connecting…' }}</q-tooltip>
+            <q-tooltip>MQTT {{ socketConnected ? 'connected' : 'connecting...' }}</q-tooltip>
           </q-icon>
         </q-card-section>
       </q-card>
@@ -30,7 +30,7 @@
       <!-- Vault locked warning (desktop) -->
       <q-banner v-if="vaultLocked" dense class="bg-amber-2 text-amber-10 q-mx-sm rounded-borders">
         <template #avatar><q-icon name="mdi-shield-off-outline" color="amber-9" /></template>
-        Secret vault is locked — login and API keys won't be saved.
+        Secret vault is locked - login and API keys won't be saved.
         <template #action>
           <q-btn flat dense no-caps label="Unlock" @click="$emit('unlock-vault')" />
         </template>
@@ -65,7 +65,7 @@
 
     </div>
 
-    <!-- Footer: download banner (web only), settings, copyright — pinned to bottom -->
+    <!-- Footer: download banner (web only), settings, copyright - pinned to bottom -->
     <div class="drawer-bottom">
       <DownloadDesktopBanner />
       <q-separator />
@@ -75,7 +75,7 @@
       </q-item>
       <q-separator />
       <div class="text-caption text-grey-6 text-right q-px-md q-py-xs">
-        © flespi ·
+        &copy; flespi &middot;
         <a class="licenses-link" @click="$emit('open-licenses')">MIT license</a>
       </div>
     </div>

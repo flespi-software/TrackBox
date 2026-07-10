@@ -2,7 +2,7 @@
 // simulators, so N sims cost one worker, not N. A Web Worker keeps timers firing
 // at ~real rate when the tab is backgrounded (main-thread timers get throttled),
 // so messages keep sending. Falls back to setInterval when Workers are missing
-// (SSR/restricted) or silently broken — behaviour identical, just bg-throttled.
+// (SSR/restricted) or silently broken - behaviour identical, just bg-throttled.
 // This keeps the web build's background reliability without breaking desktop/PWA.
 
 import { TICK_MS } from './constants'
