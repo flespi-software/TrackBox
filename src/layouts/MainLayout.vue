@@ -362,18 +362,33 @@ export default defineComponent({
 
     let updateTimer = null
     let unlistenCheckUpdate = null
+    let beforeUnloadHandler = null
     const checkUpdates = () => checkForUpdates({ notifyNoUpdate: true })
 
     onBeforeUnmount(() => {
       if (updateTimer) clearInterval(updateTimer)
       if (unlistenCheckUpdate) unlistenCheckUpdate()
+      if (beforeUnloadHandler) window.removeEventListener('beforeunload', beforeUnloadHandler)
     })
 
     onMounted(async () => {
       checkForUpdates()
       // First-run interactive tour (once; re-runnable from Settings → Show tour).
       if (!hidePanels.value) maybeStartFirstRunTour($q)
-      if (!isTauri) return
+      if (!isTauri) {
+        // Web: simulators run only while this tab is open, so warn before a
+        // close/refresh when any are running (desktop keeps running in the tray
+        // and already confirms on Quit). Browsers show their own generic prompt.
+        const sims = useSimulatorsStore()
+        beforeUnloadHandler = (e) => {
+          if (sims.runningCount > 0) {
+            e.preventDefault()
+            e.returnValue = ''
+          }
+        }
+        window.addEventListener('beforeunload', beforeUnloadHandler)
+        return
+      }
       // Re-check for a new version every 2 hours while the app stays open.
       updateTimer = setInterval(() => checkForUpdates(), 2 * 60 * 60 * 1000)
       // The tray "Check for updates" item asks the frontend to run a visible check.

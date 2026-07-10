@@ -6,8 +6,7 @@
 // on every tick for smooth motion; sends are throttled and batched.
 
 import { sampleRoute } from './geo'
-
-const TICK_MS = 120
+import { subscribeTick } from './clock'
 
 /* Smallest angle between two headings, 0..180°. */
 function headingDelta(a, b) {
@@ -45,7 +44,7 @@ export class SimEngine {
     this.odometerM = 0 // distance covered (meters) for mileage/fuel
     this.runSec = 0 // engine run time (seconds)
     this.running = false
-    this._timer = null
+    this._unsub = null // clock unsubscribe fn while running
     this._lastReal = 0
     this._sending = false
   }
@@ -62,13 +61,15 @@ export class SimEngine {
     // Seed the odometer from the current position so resume continues smoothly.
     const total = this.route.totalDuration || 0
     this.odometerM = total ? (this.simTime / total) * this.route.totalDistance : 0
-    this._timer = setInterval(() => this._tick(), TICK_MS)
+    // Driven by the shared clock (Web Worker when available) so a backgrounded
+    // tab keeps ticking; _tick self-corrects via performance.now() deltas.
+    this._unsub = subscribeTick(() => this._tick())
   }
 
   pause() {
     this.running = false
-    if (this._timer) clearInterval(this._timer)
-    this._timer = null
+    if (this._unsub) this._unsub()
+    this._unsub = null
   }
 
   stop() {
@@ -174,7 +175,7 @@ export class SimEngine {
      changes a live value (e.g. opens a door) so it isn't held back until the
      next scheduled send. No-op when not running; doesn't disturb playback. */
   emitNow() {
-    if (!this._timer) return
+    if (!this.running) return
     // Restart the cadence only if the immediate send actually went out, so a
     // skipped overlap doesn't push the next scheduled send out by an interval.
     if (this._emit(this.snapshot())) this.sendAcc = 0

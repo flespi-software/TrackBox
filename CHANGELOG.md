@@ -3,6 +3,16 @@
 All notable changes to TrackBox are documented here. This file is bundled into
 the app and shown in Settings → “What’s new”.
 
+## [1.1.2]
+
+### Added
+- Web: warn before closing/reloading the tab while simulators are running.
+
+### Changed
+- Web: the simulator clock now runs in a Web Worker, so a backgrounded tab keeps
+  sending messages at the right cadence instead of being throttled by the browser
+  (falls back to the previous timer where Workers are unavailable).
+
 ## [1.1.1]
 
 ### Added
